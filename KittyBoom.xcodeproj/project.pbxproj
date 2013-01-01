@@ -1,0 +1,311 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CDC510BD1692BC120069C891 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC510BC1692BC120069C891 /* UIKit.framework */; };
+		CDC510BF1692BC120069C891 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC510BE1692BC120069C891 /* Foundation.framework */; };
+		CDC510C11692BC120069C891 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC510C01692BC120069C891 /* CoreGraphics.framework */; };
+		CDC510C71692BC130069C891 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = CDC510C51692BC130069C891 /* InfoPlist.strings */; };
+		CDC510C91692BC130069C891 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CDC510C81692BC130069C891 /* main.m */; };
+		CDC510CD1692BC130069C891 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CDC510CC1692BC130069C891 /* AppDelegate.m */; };
+		CDC510CF1692BC130069C891 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = CDC510CE1692BC130069C891 /* Default.png */; };
+		CDC510D11692BC130069C891 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CDC510D01692BC130069C891 /* Default@2x.png */; };
+		CDC510D31692BC130069C891 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CDC510D21692BC130069C891 /* Default-568h@2x.png */; };
+		CDC510D61692BC130069C891 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CDC510D51692BC130069C891 /* ViewController.m */; };
+		CDC510D91692BC130069C891 /* ViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = CDC510D71692BC130069C891 /* ViewController_iPhone.xib */; };
+		CDC510DC1692BC130069C891 /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = CDC510DA1692BC130069C891 /* ViewController_iPad.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		CDC510B81692BC120069C891 /* KittyBoom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KittyBoom.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDC510BC1692BC120069C891 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		CDC510BE1692BC120069C891 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		CDC510C01692BC120069C891 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		CDC510C41692BC130069C891 /* KittyBoom-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "KittyBoom-Info.plist"; sourceTree = "<group>"; };
+		CDC510C61692BC130069C891 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		CDC510C81692BC130069C891 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CDC510CA1692BC130069C891 /* KittyBoom-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KittyBoom-Prefix.pch"; sourceTree = "<group>"; };
+		CDC510CB1692BC130069C891 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		CDC510CC1692BC130069C891 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		CDC510CE1692BC130069C891 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		CDC510D01692BC130069C891 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		CDC510D21692BC130069C891 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		CDC510D41692BC130069C891 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		CDC510D51692BC130069C891 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		CDC510D81692BC130069C891 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController_iPhone.xib; sourceTree = "<group>"; };
+		CDC510DB1692BC130069C891 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController_iPad.xib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CDC510B51692BC120069C891 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDC510BD1692BC120069C891 /* UIKit.framework in Frameworks */,
+				CDC510BF1692BC120069C891 /* Foundation.framework in Frameworks */,
+				CDC510C11692BC120069C891 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CDC510AD1692BC120069C891 = {
+			isa = PBXGroup;
+			children = (
+				CDC510C21692BC120069C891 /* KittyBoom */,
+				CDC510BB1692BC120069C891 /* Frameworks */,
+				CDC510B91692BC120069C891 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CDC510B91692BC120069C891 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CDC510B81692BC120069C891 /* KittyBoom.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CDC510BB1692BC120069C891 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CDC510BC1692BC120069C891 /* UIKit.framework */,
+				CDC510BE1692BC120069C891 /* Foundation.framework */,
+				CDC510C01692BC120069C891 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CDC510C21692BC120069C891 /* KittyBoom */ = {
+			isa = PBXGroup;
+			children = (
+				CDC510CB1692BC130069C891 /* AppDelegate.h */,
+				CDC510CC1692BC130069C891 /* AppDelegate.m */,
+				CDC510D41692BC130069C891 /* ViewController.h */,
+				CDC510D51692BC130069C891 /* ViewController.m */,
+				CDC510D71692BC130069C891 /* ViewController_iPhone.xib */,
+				CDC510DA1692BC130069C891 /* ViewController_iPad.xib */,
+				CDC510C31692BC130069C891 /* Supporting Files */,
+			);
+			path = KittyBoom;
+			sourceTree = "<group>";
+		};
+		CDC510C31692BC130069C891 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				CDC510C41692BC130069C891 /* KittyBoom-Info.plist */,
+				CDC510C51692BC130069C891 /* InfoPlist.strings */,
+				CDC510C81692BC130069C891 /* main.m */,
+				CDC510CA1692BC130069C891 /* KittyBoom-Prefix.pch */,
+				CDC510CE1692BC130069C891 /* Default.png */,
+				CDC510D01692BC130069C891 /* Default@2x.png */,
+				CDC510D21692BC130069C891 /* Default-568h@2x.png */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CDC510B71692BC120069C891 /* KittyBoom */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDC510DF1692BC130069C891 /* Build configuration list for PBXNativeTarget "KittyBoom" */;
+			buildPhases = (
+				CDC510B41692BC120069C891 /* Sources */,
+				CDC510B51692BC120069C891 /* Frameworks */,
+				CDC510B61692BC120069C891 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KittyBoom;
+			productName = KittyBoom;
+			productReference = CDC510B81692BC120069C891 /* KittyBoom.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CDC510AF1692BC120069C891 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = example.com;
+			};
+			buildConfigurationList = CDC510B21692BC120069C891 /* Build configuration list for PBXProject "KittyBoom" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = CDC510AD1692BC120069C891;
+			productRefGroup = CDC510B91692BC120069C891 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CDC510B71692BC120069C891 /* KittyBoom */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CDC510B61692BC120069C891 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDC510C71692BC130069C891 /* InfoPlist.strings in Resources */,
+				CDC510CF1692BC130069C891 /* Default.png in Resources */,
+				CDC510D11692BC130069C891 /* Default@2x.png in Resources */,
+				CDC510D31692BC130069C891 /* Default-568h@2x.png in Resources */,
+				CDC510D91692BC130069C891 /* ViewController_iPhone.xib in Resources */,
+				CDC510DC1692BC130069C891 /* ViewController_iPad.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CDC510B41692BC120069C891 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDC510C91692BC130069C891 /* main.m in Sources */,
+				CDC510CD1692BC130069C891 /* AppDelegate.m in Sources */,
+				CDC510D61692BC130069C891 /* ViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		CDC510C51692BC130069C891 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CDC510C61692BC130069C891 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		CDC510D71692BC130069C891 /* ViewController_iPhone.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CDC510D81692BC130069C891 /* en */,
+			);
+			name = ViewController_iPhone.xib;
+			sourceTree = "<group>";
+		};
+		CDC510DA1692BC130069C891 /* ViewController_iPad.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CDC510DB1692BC130069C891 /* en */,
+			);
+			name = ViewController_iPad.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		CDC510DD1692BC130069C891 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CDC510DE1692BC130069C891 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CDC510E01692BC130069C891 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "KittyBoom/KittyBoom-Prefix.pch";
+				INFOPLIST_FILE = "KittyBoom/KittyBoom-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		CDC510E11692BC130069C891 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "KittyBoom/KittyBoom-Prefix.pch";
+				INFOPLIST_FILE = "KittyBoom/KittyBoom-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CDC510B21692BC120069C891 /* Build configuration list for PBXProject "KittyBoom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDC510DD1692BC130069C891 /* Debug */,
+				CDC510DE1692BC130069C891 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CDC510DF1692BC130069C891 /* Build configuration list for PBXNativeTarget "KittyBoom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDC510E01692BC130069C891 /* Debug */,
+				CDC510E11692BC130069C891 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CDC510AF1692BC120069C891 /* Project object */;
+}
