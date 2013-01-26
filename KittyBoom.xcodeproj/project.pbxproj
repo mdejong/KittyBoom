@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CD31A63E16B3E0230031CF69 /* Beach_960_640.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */; };
+		CD31A63F16B3E0230031CF69 /* Beach_1024_768.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CD31A63D16B3E0230031CF69 /* Beach_1024_768.jpg */; };
 		CDC510BD1692BC120069C891 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC510BC1692BC120069C891 /* UIKit.framework */; };
 		CDC510BF1692BC120069C891 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC510BE1692BC120069C891 /* Foundation.framework */; };
 		CDC510C11692BC120069C891 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC510C01692BC120069C891 /* CoreGraphics.framework */; };
@@ -22,6 +24,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Beach_960_640.jpg; sourceTree = "<group>"; };
+		CD31A63D16B3E0230031CF69 /* Beach_1024_768.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Beach_1024_768.jpg; sourceTree = "<group>"; };
 		CDC510B81692BC120069C891 /* KittyBoom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KittyBoom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDC510BC1692BC120069C891 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		CDC510BE1692BC120069C891 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -99,6 +103,8 @@
 		CDC510C31692BC130069C891 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */,
+				CD31A63D16B3E0230031CF69 /* Beach_1024_768.jpg */,
 				CDC510C41692BC130069C891 /* KittyBoom-Info.plist */,
 				CDC510C51692BC130069C891 /* InfoPlist.strings */,
 				CDC510C81692BC130069C891 /* main.m */,
@@ -167,6 +173,8 @@
 				CDC510D31692BC130069C891 /* Default-568h@2x.png in Resources */,
 				CDC510D91692BC130069C891 /* ViewController_iPhone.xib in Resources */,
 				CDC510DC1692BC130069C891 /* ViewController_iPad.xib in Resources */,
+				CD31A63E16B3E0230031CF69 /* Beach_960_640.jpg in Resources */,
+				CD31A63F16B3E0230031CF69 /* Beach_1024_768.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,6 +312,7 @@
 				CDC510E11692BC130069C891 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
