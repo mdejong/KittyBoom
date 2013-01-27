@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CD04C7D316B5BD0F002D8E57 /* kitty-run.apng in Resources */ = {isa = PBXBuildFile; fileRef = CD04C7D216B5BD0F002D8E57 /* kitty-run.apng */; };
 		CD31A63E16B3E0230031CF69 /* Beach_960_640.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */; };
 		CD31A63F16B3E0230031CF69 /* Beach_1024_768.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CD31A63D16B3E0230031CF69 /* Beach_1024_768.jpg */; };
 		CD4C839F16B4E1D50045DC61 /* ExplosionAdjusted_alpha_CRF_30_24BPP.m4v in Resources */ = {isa = PBXBuildFile; fileRef = CD4C839D16B4E1D50045DC61 /* ExplosionAdjusted_alpha_CRF_30_24BPP.m4v */; };
@@ -81,6 +82,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CD04C7D216B5BD0F002D8E57 /* kitty-run.apng */ = {isa = PBXFileReference; lastKnownFileType = file; path = "kitty-run.apng"; sourceTree = "<group>"; };
 		CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Beach_960_640.jpg; sourceTree = "<group>"; };
 		CD31A63D16B3E0230031CF69 /* Beach_1024_768.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Beach_1024_768.jpg; sourceTree = "<group>"; };
 		CD4C839D16B4E1D50045DC61 /* ExplosionAdjusted_alpha_CRF_30_24BPP.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = ExplosionAdjusted_alpha_CRF_30_24BPP.m4v; sourceTree = "<group>"; };
@@ -413,6 +415,7 @@
 		CDC510C31692BC130069C891 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				CD04C7D216B5BD0F002D8E57 /* kitty-run.apng */,
 				CDC510D71692BC130069C891 /* ViewController_iPhone.xib */,
 				CDC510DA1692BC130069C891 /* ViewController_iPad.xib */,
 				CD4C839D16B4E1D50045DC61 /* ExplosionAdjusted_alpha_CRF_30_24BPP.m4v */,
@@ -491,6 +494,7 @@
 				CD31A63F16B3E0230031CF69 /* Beach_1024_768.jpg in Resources */,
 				CD4C839F16B4E1D50045DC61 /* ExplosionAdjusted_alpha_CRF_30_24BPP.m4v in Resources */,
 				CD4C83A016B4E1D50045DC61 /* ExplosionAdjusted_rgb_CRF_30_24BPP.m4v in Resources */,
+				CD04C7D316B5BD0F002D8E57 /* kitty-run.apng in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
