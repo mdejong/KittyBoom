@@ -43,6 +43,7 @@
 
 - (void) dealloc
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
   [AutoPropertyRelease releaseProperties:self thisClass:ViewController.class];
   [super dealloc];
 }
@@ -124,7 +125,8 @@
   [animatorLayer attachMedia:media];
   
   //media.animatorRepeatCount = 3;
-  media.animatorRepeatCount = 30;
+  //media.animatorRepeatCount = 30;
+  media.animatorRepeatCount = INT_MAX;
   
   [media prepareToAnimate];
   
@@ -208,7 +210,8 @@
   [animatorLayer attachMedia:media];
   
   //media.animatorRepeatCount = 3;
-  media.animatorRepeatCount = 30;
+  //media.animatorRepeatCount = 30;
+  media.animatorRepeatCount = INT_MAX;
   
   [media prepareToAnimate];
   
@@ -223,11 +226,86 @@
   
   [self prepareKittyMedia];
   
-  [self.expMedia startAnimator];
+  //[self.expMedia startAnimator];
 
-  [self.kittyMedia startAnimator];
+  //[self.kittyMedia startAnimator];
+  
+  // Setup animator ready callback, will be invoked after media is done loading
+  
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(animatorPreparedNotification:)
+                                               name:AVAnimatorPreparedToAnimateNotification
+                                             object:self.expMedia];
+
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(animatorPreparedNotification:)
+                                               name:AVAnimatorPreparedToAnimateNotification
+                                             object:self.kittyMedia];
   
   return;
 }
+
+// Invoked once a specific media object is ready to animate.
+
+- (void)animatorPreparedNotification:(NSNotification*)notification {
+  AVAnimatorMedia *media = notification.object;
+  
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:AVAnimatorPreparedToAnimateNotification
+                                                object:media];
+  
+  AVMvidFrameDecoder *decoder = (AVMvidFrameDecoder*) media.frameDecoder;
+  NSString *file = [decoder.filePath lastPathComponent];
+	NSLog( @"animatorPreparedNotification %@", file);
+  
+  if (self.kittyMedia.isReadyToAnimate && self.expMedia.isReadyToAnimate) {
+    // Both movies are ready to animate
+    
+    [self startKittyAnimation];
+  }
+  
+  return;
+}
+
+- (void) startKittyAnimation
+{
+  CALayer *layer = self.kittyAnimatorLayer.layer;
+
+  /*
+  CGRect currentFrame = layer.frame;
+  CGPoint currentPoint = currentFrame.origin;
+  CGPoint startPoint = currentFrame.origin;
+  startPoint.x = 0;
+  */
+  
+// [CATransaction begin];
+
+  NSValue *currentPosition = [layer valueForKey:@"position"];
+  CGPoint currentPoint = [currentPosition CGPointValue];
+  CGPoint startPoint = currentPoint;
+  startPoint.x = 0;
+  
+  CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"position"];
+  
+  animation.duration = 7.0f;
+  animation.fromValue = [NSValue valueWithCGPoint:startPoint];
+  animation.toValue = [NSValue valueWithCGPoint:currentPoint];
+  
+//  [CATransaction setCompletionBlock:^{_lastPoint = _currentPoint; _currentPoint = CGPointMake(_lastPoint.x + _wormStepHorizontalValue, _wormStepVerticalValue);}];
+  
+//  anim.delegate = self;
+  
+  // Update the layer's position so that the layer doesn't snap back when the animation completes.
+  //layer.position = point;
+  
+  // Add the animation, overriding the implicit animation.
+  [layer addAnimation:animation forKey:@"position"];
+  
+  [self.kittyMedia startAnimator];
+  
+  //[self.expMedia startAnimator];
+}
+
+//[UIView setAnimationDidStopSelector:@selector(animateOut:finished:context:)];
 
 @end
