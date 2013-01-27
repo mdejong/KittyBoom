@@ -52,8 +52,8 @@
   // Create resource loader that will combine RGB and Alpha values back
   // into one Maxvid file.
 
-  CGRect iPhoneExplosionRect = CGRectMake(0, 0, 640/2, 480/2);
-  CGRect iPadExplosionRect = CGRectMake(0, 0, 826, 620);
+  CGRect iPhoneExplosionRect = CGRectMake(0, -2, 640/2, 480/2);
+  CGRect iPadExplosionRect = CGRectMake(0, -4, 826, 620);
  
   NSString *rgbResourceName = @"ExplosionAdjusted_rgb_CRF_30_24BPP.m4v";
   NSString *alphaResourceName = @"ExplosionAdjusted_alpha_CRF_30_24BPP.m4v";
