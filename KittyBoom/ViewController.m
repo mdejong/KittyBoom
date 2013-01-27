@@ -200,6 +200,8 @@
   
   [self.view.layer addSublayer:layer];
   
+  layer.opacity = 0.0;
+  
   AVAnimatorLayer *animatorLayer = [AVAnimatorLayer aVAnimatorLayer:layer];
   
   self.kittyAnimatorLayer = animatorLayer;
@@ -265,13 +267,13 @@
 
 - (void) startKittyAnimation
 {
-	NSLog(@"startKittyAnimation");
+  NSLog(@"startKittyAnimation");
   
   CALayer *layer = self.kittyAnimatorLayer.layer;
   
   layer.opacity = 1.0;
   
- [CATransaction begin];
+  [CATransaction begin];
 
   NSValue *currentPosition = [layer valueForKey:@"position"];
   CGPoint currentPoint = [currentPosition CGPointValue];
