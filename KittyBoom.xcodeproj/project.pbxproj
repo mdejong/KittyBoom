@@ -405,8 +405,6 @@
 				CDC510CC1692BC130069C891 /* AppDelegate.m */,
 				CDC510D41692BC130069C891 /* ViewController.h */,
 				CDC510D51692BC130069C891 /* ViewController.m */,
-				CDC510D71692BC130069C891 /* ViewController_iPhone.xib */,
-				CDC510DA1692BC130069C891 /* ViewController_iPad.xib */,
 				CDC510C31692BC130069C891 /* Supporting Files */,
 			);
 			path = KittyBoom;
@@ -415,6 +413,8 @@
 		CDC510C31692BC130069C891 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				CDC510D71692BC130069C891 /* ViewController_iPhone.xib */,
+				CDC510DA1692BC130069C891 /* ViewController_iPad.xib */,
 				CD4C839D16B4E1D50045DC61 /* ExplosionAdjusted_alpha_CRF_30_24BPP.m4v */,
 				CD4C839E16B4E1D50045DC61 /* ExplosionAdjusted_rgb_CRF_30_24BPP.m4v */,
 				CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */,

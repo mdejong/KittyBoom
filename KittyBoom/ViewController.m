@@ -19,11 +19,21 @@
 
 #import <QuartzCore/QuartzCore.h>
 
+#import "AutoPropertyRelease.h"
+
 @interface ViewController ()
 
-@property (nonatomic, retain) AVAnimatorMedia *media;
+// Explosion
 
-@property (nonatomic, retain) AVAnimatorLayer *animatorLayer;
+@property (nonatomic, retain) AVAnimatorMedia *expMedia;
+
+@property (nonatomic, retain) AVAnimatorLayer *expAnimatorLayer;
+
+// Kitty
+
+//@property (nonatomic, retain) AVAnimatorMedia *kittyMedia;
+//
+//@property (nonatomic, retain) AVAnimatorLayer *kittyAnimatorLayer;
 
 @end
 
@@ -31,8 +41,7 @@
 
 - (void) dealloc
 {
-  self.media = nil;
-  self.animatorLayer = nil;
+  [AutoPropertyRelease releaseProperties:self thisClass:ViewController.class];
   [super dealloc];
 }
 
@@ -43,7 +52,7 @@
   // Create resource loader that will combine RGB and Alpha values back
   // into one Maxvid file.
 
-  CGRect iPhoneExplosionRect = CGRectMake(0, 0, 640, 480);
+  CGRect iPhoneExplosionRect = CGRectMake(0, 0, 640/2, 480/2);
   CGRect iPadExplosionRect = CGRectMake(0, 0, 826, 620);
  
   NSString *rgbResourceName = @"ExplosionAdjusted_rgb_CRF_30_24BPP.m4v";
@@ -77,7 +86,7 @@
   AVAnimatorMedia *media = [AVAnimatorMedia aVAnimatorMedia];
   media.resourceLoader = resLoader;
   
-  self.media = media;
+  self.expMedia = media;
   
   // Frame decoder will read from generated .mvid file
   
@@ -105,7 +114,7 @@
   
   AVAnimatorLayer *animatorLayer = [AVAnimatorLayer aVAnimatorLayer:layer];
 
-  self.animatorLayer = animatorLayer;
+  self.expAnimatorLayer = animatorLayer;
 
   // Finally connect the media object to the layer so that rendering will be
   // sent to the layer.
