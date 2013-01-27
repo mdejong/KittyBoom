@@ -126,7 +126,7 @@
   
   //media.animatorRepeatCount = 3;
   //media.animatorRepeatCount = 30;
-  media.animatorRepeatCount = INT_MAX;
+  //media.animatorRepeatCount = INT_MAX;
   
   [media prepareToAnimate];
   
@@ -225,11 +225,7 @@
   [self prepareExplosionMedia];
   
   [self prepareKittyMedia];
-  
-  //[self.expMedia startAnimator];
-
-  //[self.kittyMedia startAnimator];
-  
+    
   // Setup animator ready callback, will be invoked after media is done loading
   
   [[NSNotificationCenter defaultCenter] addObserver:self
@@ -270,15 +266,8 @@
 - (void) startKittyAnimation
 {
   CALayer *layer = self.kittyAnimatorLayer.layer;
-
-  /*
-  CGRect currentFrame = layer.frame;
-  CGPoint currentPoint = currentFrame.origin;
-  CGPoint startPoint = currentFrame.origin;
-  startPoint.x = 0;
-  */
   
-// [CATransaction begin];
+ [CATransaction begin];
 
   NSValue *currentPosition = [layer valueForKey:@"position"];
   CGPoint currentPoint = [currentPosition CGPointValue];
@@ -291,21 +280,42 @@
   animation.fromValue = [NSValue valueWithCGPoint:startPoint];
   animation.toValue = [NSValue valueWithCGPoint:currentPoint];
   
-//  [CATransaction setCompletionBlock:^{_lastPoint = _currentPoint; _currentPoint = CGPointMake(_lastPoint.x + _wormStepHorizontalValue, _wormStepVerticalValue);}];
-  
-//  anim.delegate = self;
-  
-  // Update the layer's position so that the layer doesn't snap back when the animation completes.
-  //layer.position = point;
+  [CATransaction setCompletionBlock:^{
+    // Done with animation, invoke callback on this object
+    [self doKittyBoom];
+  }];
   
   // Add the animation, overriding the implicit animation.
   [layer addAnimation:animation forKey:@"position"];
   
-  [self.kittyMedia startAnimator];
+  [CATransaction commit];
   
-  //[self.expMedia startAnimator];
+  // Start kitty skipping loop
+  
+  [self.kittyMedia startAnimator];
 }
 
-//[UIView setAnimationDidStopSelector:@selector(animateOut:finished:context:)];
+// Invoked when kitty skip animation is complete
+
+- (void) doKittyBoom
+{
+  [self.kittyMedia stopAnimator];
+  [self.expMedia startAnimator];
+  
+  // Animate kitty opacity to zero
+  
+  {
+    CALayer *layer = self.kittyAnimatorLayer.layer;
+    
+    [CATransaction begin];
+    [CATransaction setAnimationDuration:1.0f];
+    layer.opacity = 0.0;
+    [CATransaction commit];
+  }
+  
+  self.kittyAnimatorLayer.layer.opacity = 0.0;
+  
+  return;
+}
 
 @end
