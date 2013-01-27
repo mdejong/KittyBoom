@@ -94,18 +94,26 @@
     expFrame = iPadExplosionRect;
   }  
   
-  //UIView *expSubview = [[[UIView alloc] initWithFrame:expFrame] autorelease];
-  //[self.view addSubview:expSubview];
-  //CALayer *subviewLayer = expSubview.layer;
-  
   CALayer *layer = [CALayer layer];
   layer.frame = expFrame;
 
+  if (FALSE) {
+    layer.backgroundColor = [UIColor orangeColor].CGColor;
+  }
+  
   [self.view.layer addSublayer:layer];
   
   AVAnimatorLayer *animatorLayer = [AVAnimatorLayer aVAnimatorLayer:layer];
 
   self.animatorLayer = animatorLayer;
+
+  // Finally connect the media object to the layer so that rendering will be
+  // sent to the layer.
+  
+  [animatorLayer attachMedia:media];
+  
+  //media.animatorRepeatCount = 3;
+  media.animatorRepeatCount = 30;
   
   //[media prepareToAnimate];
   
