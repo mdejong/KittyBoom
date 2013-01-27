@@ -265,7 +265,11 @@
 
 - (void) startKittyAnimation
 {
+	NSLog(@"startKittyAnimation");
+  
   CALayer *layer = self.kittyAnimatorLayer.layer;
+  
+  layer.opacity = 1.0;
   
  [CATransaction begin];
 
@@ -312,8 +316,33 @@
     layer.opacity = 0.0;
     [CATransaction commit];
   }
+
+  // Kick off callback when explosion animation is finished
   
-  self.kittyAnimatorLayer.layer.opacity = 0.0;
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(explosionDoneNotification:)
+                                               name:AVAnimatorDoneNotification
+                                             object:self.expMedia];
+  
+  return;
+}
+
+// Invoked once the explosion animation is completed
+
+- (void) explosionDoneNotification:(NSNotification*)notification {
+  AVAnimatorMedia *media = notification.object;
+  
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:AVAnimatorDoneNotification
+                                                object:media];
+  
+	NSLog(@"explosionDoneNotification");
+  
+  // Start the kitty skip animation again
+  
+  [self.expMedia stopAnimator];
+
+  [self startKittyAnimation];
   
   return;
 }
