@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C823A4B1AA1914A00399E31 /* AVAnimatorOpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C823A431AA1914A00399E31 /* AVAnimatorOpenGLView.m */; };
+		3C823A4C1AA1914A00399E31 /* AVGIF89A2MvidResourceLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C823A461AA1914A00399E31 /* AVGIF89A2MvidResourceLoader.m */; };
+		3C823A4D1AA1914A00399E31 /* maxvid_deltas.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C823A481AA1914A00399E31 /* maxvid_deltas.m */; };
+		3C823A4E1AA1914A00399E31 /* MutableAttrString.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C823A4A1AA1914A00399E31 /* MutableAttrString.m */; };
+		3C823A501AA191DF00399E31 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C823A4F1AA191DF00399E31 /* MobileCoreServices.framework */; };
+		3C823A521AA191EB00399E31 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C823A511AA191EB00399E31 /* GLKit.framework */; };
+		3C823A541AA191F600399E31 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C823A531AA191F600399E31 /* OpenGLES.framework */; };
+		3C823A561AA1920100399E31 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C823A551AA1920100399E31 /* CoreText.framework */; };
+		3C823A581AA1920D00399E31 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C823A571AA1920D00399E31 /* ImageIO.framework */; };
 		CD04C7D316B5BD0F002D8E57 /* kitty-run.apng in Resources */ = {isa = PBXBuildFile; fileRef = CD04C7D216B5BD0F002D8E57 /* kitty-run.apng */; };
 		CD31A63E16B3E0230031CF69 /* Beach_960_640.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */; };
 		CD31A63F16B3E0230031CF69 /* Beach_1024_768.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CD31A63D16B3E0230031CF69 /* Beach_1024_768.jpg */; };
@@ -37,7 +46,7 @@
 		CD4C842216B4F5A80045DC61 /* CGFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = CD4C83D816B4F5A80045DC61 /* CGFrameBuffer.m */; };
 		CD4C842316B4F5A80045DC61 /* libapng.c in Sources */ = {isa = PBXBuildFile; fileRef = CD4C83D916B4F5A80045DC61 /* libapng.c */; };
 		CD4C842416B4F5A80045DC61 /* maxvid_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = CD4C83DB16B4F5A80045DC61 /* maxvid_decode.c */; };
-		CD4C842516B4F5A80045DC61 /* maxvid_decode_arm.s in Sources */ = {isa = PBXBuildFile; fileRef = CD4C83DD16B4F5A80045DC61 /* maxvid_decode_arm.s */; settings = {COMPILER_FLAGS = "-no-integrated-as"; }; };
+		CD4C842516B4F5A80045DC61 /* maxvid_decode_arm.s in Sources */ = {isa = PBXBuildFile; fileRef = CD4C83DD16B4F5A80045DC61 /* maxvid_decode_arm.s */; };
 		CD4C842616B4F5A80045DC61 /* maxvid_encode.m in Sources */ = {isa = PBXBuildFile; fileRef = CD4C83DF16B4F5A80045DC61 /* maxvid_encode.m */; };
 		CD4C842716B4F5A80045DC61 /* maxvid_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD4C83E016B4F5A80045DC61 /* maxvid_file.c */; };
 		CD4C842816B4F5A80045DC61 /* movdata.c in Sources */ = {isa = PBXBuildFile; fileRef = CD4C83E216B4F5A80045DC61 /* movdata.c */; };
@@ -82,6 +91,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3C823A421AA1914A00399E31 /* AVAnimatorOpenGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVAnimatorOpenGLView.h; sourceTree = "<group>"; };
+		3C823A431AA1914A00399E31 /* AVAnimatorOpenGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVAnimatorOpenGLView.m; sourceTree = "<group>"; };
+		3C823A441AA1914A00399E31 /* AVAnimatorOpenGLViewPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVAnimatorOpenGLViewPrivate.h; sourceTree = "<group>"; };
+		3C823A451AA1914A00399E31 /* AVGIF89A2MvidResourceLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVGIF89A2MvidResourceLoader.h; sourceTree = "<group>"; };
+		3C823A461AA1914A00399E31 /* AVGIF89A2MvidResourceLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVGIF89A2MvidResourceLoader.m; sourceTree = "<group>"; };
+		3C823A471AA1914A00399E31 /* maxvid_deltas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maxvid_deltas.h; sourceTree = "<group>"; };
+		3C823A481AA1914A00399E31 /* maxvid_deltas.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = maxvid_deltas.m; sourceTree = "<group>"; };
+		3C823A491AA1914A00399E31 /* MutableAttrString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutableAttrString.h; sourceTree = "<group>"; };
+		3C823A4A1AA1914A00399E31 /* MutableAttrString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutableAttrString.m; sourceTree = "<group>"; };
+		3C823A4F1AA191DF00399E31 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		3C823A511AA191EB00399E31 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		3C823A531AA191F600399E31 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		3C823A551AA1920100399E31 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		3C823A571AA1920D00399E31 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		CD04C7D216B5BD0F002D8E57 /* kitty-run.apng */ = {isa = PBXFileReference; lastKnownFileType = file; path = "kitty-run.apng"; sourceTree = "<group>"; };
 		CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Beach_960_640.jpg; sourceTree = "<group>"; };
 		CD31A63D16B3E0230031CF69 /* Beach_1024_768.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Beach_1024_768.jpg; sourceTree = "<group>"; };
@@ -217,12 +240,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD4C844316B4FA390045DC61 /* CoreVideo.framework in Frameworks */,
+				3C823A581AA1920D00399E31 /* ImageIO.framework in Frameworks */,
+				3C823A561AA1920100399E31 /* CoreText.framework in Frameworks */,
+				3C823A541AA191F600399E31 /* OpenGLES.framework in Frameworks */,
+				3C823A521AA191EB00399E31 /* GLKit.framework in Frameworks */,
+				3C823A501AA191DF00399E31 /* MobileCoreServices.framework in Frameworks */,
 				CD4C844D16B4FAE30045DC61 /* libz.dylib in Frameworks */,
 				CD4C844B16B4FAAE0045DC61 /* QuartzCore.framework in Frameworks */,
 				CD4C844916B4FA8A0045DC61 /* AudioToolbox.framework in Frameworks */,
 				CD4C844716B4FA7C0045DC61 /* AssetsLibrary.framework in Frameworks */,
 				CD4C844516B4FA650045DC61 /* AVFoundation.framework in Frameworks */,
-				CD4C844316B4FA390045DC61 /* CoreVideo.framework in Frameworks */,
 				CD4C844116B4FA330045DC61 /* CoreMedia.framework in Frameworks */,
 				CDC510BD1692BC120069C891 /* UIKit.framework in Frameworks */,
 				CDC510BF1692BC120069C891 /* Foundation.framework in Frameworks */,
@@ -296,6 +324,15 @@
 				CD4C83E116B4F5A80045DC61 /* maxvid_file.h */,
 				CD4C83E216B4F5A80045DC61 /* movdata.c */,
 				CD4C83E316B4F5A80045DC61 /* movdata.h */,
+				3C823A421AA1914A00399E31 /* AVAnimatorOpenGLView.h */,
+				3C823A431AA1914A00399E31 /* AVAnimatorOpenGLView.m */,
+				3C823A441AA1914A00399E31 /* AVAnimatorOpenGLViewPrivate.h */,
+				3C823A451AA1914A00399E31 /* AVGIF89A2MvidResourceLoader.h */,
+				3C823A461AA1914A00399E31 /* AVGIF89A2MvidResourceLoader.m */,
+				3C823A471AA1914A00399E31 /* maxvid_deltas.h */,
+				3C823A481AA1914A00399E31 /* maxvid_deltas.m */,
+				3C823A491AA1914A00399E31 /* MutableAttrString.h */,
+				3C823A4A1AA1914A00399E31 /* MutableAttrString.m */,
 				CD4C83E416B4F5A80045DC61 /* SegmentedMappedData.h */,
 				CD4C83E516B4F5A80045DC61 /* SegmentedMappedData.m */,
 			);
@@ -382,6 +419,11 @@
 		CDC510BB1692BC120069C891 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3C823A571AA1920D00399E31 /* ImageIO.framework */,
+				3C823A551AA1920100399E31 /* CoreText.framework */,
+				3C823A531AA191F600399E31 /* OpenGLES.framework */,
+				3C823A511AA191EB00399E31 /* GLKit.framework */,
+				3C823A4F1AA191DF00399E31 /* MobileCoreServices.framework */,
 				CD4C844C16B4FAE30045DC61 /* libz.dylib */,
 				CD4C844A16B4FAAE0045DC61 /* QuartzCore.framework */,
 				CD4C844816B4FA8A0045DC61 /* AudioToolbox.framework */,
@@ -519,6 +561,7 @@
 				CD4C841416B4F5A80045DC61 /* AVAppResourceLoader.m in Sources */,
 				CD4C841516B4F5A80045DC61 /* AVAsset2MvidResourceLoader.m in Sources */,
 				CD4C841616B4F5A80045DC61 /* AVAssetFrameDecoder.m in Sources */,
+				3C823A4C1AA1914A00399E31 /* AVGIF89A2MvidResourceLoader.m in Sources */,
 				CD4C841716B4F5A80045DC61 /* AVAssetJoinAlphaResourceLoader.m in Sources */,
 				CD4C841816B4F5A80045DC61 /* AVAssetReaderConvertMaxvid.m in Sources */,
 				CD4C841916B4F5A80045DC61 /* AVAssetWriterConvertFromMaxvid.m in Sources */,
@@ -527,11 +570,14 @@
 				CD4C841C16B4F5A80045DC61 /* AVFrameDecoder.m in Sources */,
 				CD4C841D16B4F5A80045DC61 /* AVImageFrameDecoder.m in Sources */,
 				CD4C841E16B4F5A80045DC61 /* AVMvidFileWriter.m in Sources */,
+				3C823A4D1AA1914A00399E31 /* maxvid_deltas.m in Sources */,
 				CD4C841F16B4F5A80045DC61 /* AVMvidFrameDecoder.m in Sources */,
+				3C823A4B1AA1914A00399E31 /* AVAnimatorOpenGLView.m in Sources */,
 				CD4C842016B4F5A80045DC61 /* AVOfflineComposition.m in Sources */,
 				CD4C842116B4F5A80045DC61 /* AVResourceLoader.m in Sources */,
 				CD4C842216B4F5A80045DC61 /* CGFrameBuffer.m in Sources */,
 				CD4C842316B4F5A80045DC61 /* libapng.c in Sources */,
+				3C823A4E1AA1914A00399E31 /* MutableAttrString.m in Sources */,
 				CD4C842416B4F5A80045DC61 /* maxvid_decode.c in Sources */,
 				CD4C842516B4F5A80045DC61 /* maxvid_decode_arm.s in Sources */,
 				CD4C842616B4F5A80045DC61 /* maxvid_encode.m in Sources */,

@@ -46,7 +46,13 @@ uint32_t maxvid_file_padding_before_keyframe(FILE *outFile, uint32_t offset) {
     wordsToBound--;
   }
   
-  uint32_t offsetAfter = ftell(outFile);
+  off_t offsetAfterOff = ftello(outFile);
+  assert(offsetAfterOff != -1);
+  assert(offset < 0xFFFFFFFF);
+  // Note that in the case where offsetAfterOff is larger
+  // than the max 32 bit value, this will clamp to 32 bits
+  // and then only examine the low bits anyway.
+  uint32_t offsetAfter = (uint32_t)offsetAfterOff;
   
   assert(UINTMOD(offsetAfter, boundSize) == 0);
   
@@ -61,7 +67,6 @@ static inline
 uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   return maxvid_file_padding_before_keyframe(outFile, offset);
 }
-
 
 @interface AVMvidFileWriter ()
 
@@ -83,6 +88,10 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
 @synthesize genAdler = m_genAdler;
 @synthesize movieSize = m_movieSize;
 @synthesize isAllKeyframes = m_isAllKeyframes;
+
+#if MV_ENABLE_DELTAS
+@synthesize isDeltas = m_isDeltas;
+#endif // MV_ENABLE_DELTAS
 
 - (void) close
 {
@@ -110,13 +119,21 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   }
     
   self.mvidPath = nil;
+  
+#if __has_feature(objc_arc)
+#else
   [super dealloc];
+#endif // objc_arc
 }
 
 + (AVMvidFileWriter*) aVMvidFileWriter
 {
-  AVMvidFileWriter *obj = [[[AVMvidFileWriter alloc] init] autorelease];
+  AVMvidFileWriter *obj = [[AVMvidFileWriter alloc] init];
+#if __has_feature(objc_arc)
   return obj;
+#else
+  return [obj autorelease];
+#endif // objc_arc
 }
 
 - (BOOL) open
@@ -153,7 +170,7 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   
   int numWritten = 0;
   
-  numWritten = fwrite(mvHeader, sizeof(MVFileHeader), 1, maxvidOutFile);
+  numWritten = (int) fwrite(mvHeader, sizeof(MVFileHeader), 1, maxvidOutFile);
   if (numWritten != 1) {
     return FALSE;
   }
@@ -169,7 +186,7 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   }
   memset(mvFramesArray, 0, framesArrayNumBytes);
   
-  numWritten = fwrite(mvFramesArray, framesArrayNumBytes, 1, maxvidOutFile);
+  numWritten = (int) fwrite(mvFramesArray, framesArrayNumBytes, 1, maxvidOutFile);
   if (numWritten != 1) {
     return FALSE;
   }
@@ -214,6 +231,44 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   frameNum++;
 }
 
+#if MV_ENABLE_DELTAS
+
+// Write special case nop frame that appears at the begining of
+// the file. The weird special case bascially means that the
+// first frame is constructed by applying a frame delta to an
+// all black framebuffer.
+
+- (void) writeInitialNopFrame
+{
+#ifdef LOGGING
+  NSLog(@"writeInitialNopFrame %d", frameNum);
+#endif // LOGGING
+  
+  NSAssert(frameNum == 0, @"initial nop frame must be first frame");
+  NSAssert(frameNum < self.totalNumFrames, @"totalNumFrames");
+  
+  MVFrame *mvFrame = &mvFramesArray[frameNum];
+  
+  maxvid_frame_setoffset(mvFrame, 0);
+  maxvid_frame_setlength(mvFrame, 0);
+
+  // This special case initial nop frame is only emitted with the
+  // all deltas type of mvid file, this type of file contains no
+  // keyframes, only deltas frames.
+  
+  maxvid_frame_setnopframe(mvFrame);
+  
+  // Normally, an adler is not generated for a nop frame. But
+  // this nop frame is actually like a keyframe with all black
+  // pixels. So, set the adler to all bits on.
+  
+  mvFrame->adler = 0xFFFFFFFF;
+  
+  frameNum++;
+}
+
+#endif // MV_ENABLE_DELTAS
+
 + (int) countTrailingNopFrames:(float)currentFrameDuration
                  frameDuration:(float)frameDuration
 {
@@ -241,7 +296,9 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
 
 - (void) saveOffset
 {
-  offset = ftell(maxvidOutFile);
+  offset = ftello(maxvidOutFile);
+  NSAssert(offset != -1, @"ftello returned -1");
+  NSAssert(offset < 0xFFFFFFFF, @"ftello offset must fit into 32 bits, got %qd", offset);
 }
 
 // Advance the file offset to the start of the next page in memory.
@@ -250,7 +307,7 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
 
 - (void) skipToNextPageBound
 {
-  offset = maxvid_file_padding_before_keyframe(maxvidOutFile, offset);
+  offset = maxvid_file_padding_before_keyframe(maxvidOutFile, (uint32_t)offset);
  
   NSAssert(frameNum < self.totalNumFrames, @"totalNumFrames");
   
@@ -269,7 +326,7 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   
   [self skipToNextPageBound];
   
-  int numWritten = fwrite(ptr, bufferSize, 1, maxvidOutFile);
+  int numWritten = (int) fwrite(ptr, bufferSize, 1, maxvidOutFile);
   
   if (numWritten != 1) {
     return FALSE;
@@ -293,7 +350,7 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
     
     // zero pad to next page bound
     
-    offset = maxvid_file_padding_after_keyframe(maxvidOutFile, offset);
+    offset = maxvid_file_padding_after_keyframe(maxvidOutFile, (uint32_t)offset);
     assert(offset > 0); // silence compiler/analyzer warning
     
 #ifdef LOGGING
@@ -325,11 +382,9 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   NSAssert(self.totalNumFrames > 1, @"animation must have at least 2 frames, not %d", self.totalNumFrames);  
   mvHeader->numFrames = self.totalNumFrames;
   
-  // This file writer always emits a file with version set to 1, since
-  // the adler checksum change required a binary compatibility change
-  // from the initial version 0.
+  // This file writer always emits a file with version set to 2
   
-  maxvid_file_set_version(mvHeader, MV_FILE_VERSION_ONE);
+  maxvid_file_set_version(mvHeader, MV_FILE_VERSION_TWO);
   
   // If all frames written were keyframes (or nop frames)
   // then set a flag to indicate this special case.
@@ -338,14 +393,22 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
     maxvid_file_set_all_keyframes(mvHeader);
   }
   
+#if MV_ENABLE_DELTAS
+  
+  if (self.isDeltas) {
+    maxvid_file_set_deltas(mvHeader);
+  }
+  
+#endif // MV_ENABLE_DELTAS
+  
   (void)fseek(maxvidOutFile, 0L, SEEK_SET);
   
-  int numWritten = fwrite(mvHeader, sizeof(MVFileHeader), 1, maxvidOutFile);
+  int numWritten = (int) fwrite(mvHeader, sizeof(MVFileHeader), 1, maxvidOutFile);
   if (numWritten != 1) {
     return FALSE;
   }
   
-  numWritten = fwrite(mvFramesArray, framesArrayNumBytes, 1, maxvidOutFile);
+  numWritten = (int) fwrite(mvFramesArray, framesArrayNumBytes, 1, maxvidOutFile);
   if (numWritten != 1) {
     return FALSE;
   }  
@@ -358,7 +421,7 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   (void)fseek(maxvidOutFile, 0L, SEEK_SET);
   
   uint32_t magic = MV_FILE_MAGIC;
-  numWritten = fwrite(&magic, sizeof(uint32_t), 1, maxvidOutFile);
+  numWritten = (int) fwrite(&magic, sizeof(uint32_t), 1, maxvidOutFile);
   if (numWritten != 1) {
     return FALSE;
   }
@@ -378,7 +441,7 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   
   [self saveOffset];
   
-  int numWritten = fwrite(ptr, bufferSize, 1, maxvidOutFile);
+  int numWritten = (int) fwrite(ptr, bufferSize, 1, maxvidOutFile);
   
   if (numWritten != 1) {
     return FALSE;
@@ -388,6 +451,12 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
     NSAssert(frameNum < self.totalNumFrames, @"totalNumFrames");
     
     MVFrame *mvFrame = &mvFramesArray[frameNum];
+    
+    // FIXME: currently, the file offset is limited to the max size of a 32 bit unsigned
+    // integer. This limits the total file size to abount 4 gigs, but that could be a
+    // problem for really large files with high FPS. But, fixing this by adjusting the
+    // offset to 64 bits would break backwards compat on the file offset in the frames
+    // structure.
     
     // Note that offset must be saved before validateFileOffset is invoked
     
@@ -411,11 +480,15 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
 
 - (uint32_t) validateFileOffset:(BOOL)isKeyFrame
 {
-  uint32_t offsetBefore = (uint32_t)self->offset;
-  offset = ftell(maxvidOutFile);
-  uint32_t length = ((uint32_t)offset) - offsetBefore;
+  off_t offsetBefore = self->offset;
+  offset = ftello(maxvidOutFile);
+  NSAssert(offset != -1, @"ftello returned -1");
+  NSAssert(offset < 0xFFFFFFFF, @"ftello offset must fit into 32 bits, got %qd", offset);
+  off_t lengthOff = offset - offsetBefore;
+  assert(lengthOff < 0xFFFFFFFF);
+  uint32_t length = (uint32_t) lengthOff;
   NSAssert(length > 0, @"length must be larger than");
-    
+  
   // Typically, the framebuffer is an even number of pixels.
   // There is an odd case though, when emitting 16 bit pixels
   // is is possible that the total number of pixels written
@@ -423,7 +496,7 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
   // number of words.
   
   if (isKeyFrame) {
-    NSAssert((length % 2) == 0, @"offset length must be even");
+    NSAssert((length % 2) == 0, @"offset length must be even, not %d", length);
   }
   
   if (isKeyFrame && (self.bpp == 16)) {
@@ -432,10 +505,12 @@ uint32_t maxvid_file_padding_after_keyframe(FILE *outFile, uint32_t offset) {
       uint16_t zeroHalfword = 0;
       size_t size = fwrite(&zeroHalfword, sizeof(zeroHalfword), 1, maxvidOutFile);
       assert(size == 1);
-      offset = ftell(maxvidOutFile);
+      offset = ftello(maxvidOutFile);
+      NSAssert(offset != -1, @"ftello returned -1");
+      NSAssert(offset < 0xFFFFFFFF, @"ftello offset must fit into 32 bits, got %qd", offset);
       // Note that length is not recalculated. If a delta frame appears after this
       // one, it must begin on a word bound. The frame length ignores the halfword padding.
-      //length = ((uint32_t)offset) - offsetBefore;
+      //length = ...;
     }
   } else {
     NSAssert((length % 4) == 0, @"byte length is not in terms of whole words");    

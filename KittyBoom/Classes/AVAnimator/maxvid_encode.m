@@ -18,7 +18,8 @@ BOOL
 maxvid_calculate_delta_pixels(NSArray *deltaPixels,
                               int bpp,
                               NSMutableData *mData,
-                              NSUInteger frameBufferNumPixels);
+                              NSUInteger frameBufferNumPixels,
+                              uint32_t encodeFlags);
 
 // Testing indicates that there is no performance improvement in emitting ARM code for this
 // encode module.
@@ -45,31 +46,8 @@ return code;
 
 static inline
 int
-fwrite_word(FILE *fp, uint32_t word) {
-  size_t size = fwrite(&word, sizeof(uint32_t), 1, fp);
-  if (size != 1) {
-    return MV_ERROR_CODE_WRITE_FAILED;
-  }
-  return 0;
-}
-
-static inline
-int
-fwrite_half_word(FILE *fp, uint16_t hw) {
-  size_t size = fwrite(&hw, sizeof(uint16_t), 1, fp);
-  if (size != 1) {
-    return MV_ERROR_CODE_WRITE_FAILED;
-  }
-  return 0;
-}
-
-static inline
-int
-fwrite_byte(FILE *fp, uint8_t b) {
-  size_t size = fwrite(&b, sizeof(uint8_t), 1, fp);
-  if (size != 1) {
-    return MV_ERROR_CODE_WRITE_FAILED;
-  }
+write_word(NSMutableData *mC4Data, uint32_t word) {
+  [mC4Data appendBytes:&word length:sizeof(uint32_t)];
   return 0;
 }
 
@@ -105,7 +83,7 @@ int fpsize(FILE *fp, uint32_t *filesize) {
   int retcode;
   retcode = fseek(fp, 0, SEEK_END);
   assert(retcode == 0);
-  uint32_t size = ftell(fp);
+  uint32_t size = (uint32_t) ftell(fp);
   *filesize = size;
   fseek(fp, 0, SEEK_SET);
   return 0;
@@ -225,7 +203,7 @@ maxvid_encode_sample16_generic_decode_skipcodes(
     inword = *inputBuffer32++;
   }
     
-  *inputBuffer32NumWordsRead = (inputBuffer32 - inputBuffer32Start);
+  *inputBuffer32NumWordsRead = (uint32_t) (inputBuffer32 - inputBuffer32Start);
   *skipNumPixelsPtr = skipNumPixels;
   return 0;
 }
@@ -283,7 +261,7 @@ maxvid_encode_sample32_generic_decode_skipcodes(
     inword = *inputBuffer32++;
   }
   
-  *inputBuffer32NumWordsRead = (inputBuffer32 - inputBuffer32Start);
+  *inputBuffer32NumWordsRead = (uint32_t) (inputBuffer32 - inputBuffer32Start);
   *skipNumPixelsPtr = skipNumPixels;
   return 0;
 }
@@ -380,7 +358,7 @@ maxvid_encode_sample16_generic_decode_dupcodes(
     EXTRA_RETURN(MV_ERROR_CODE_INVALID_INPUT);
   }  
   
-  *inputBuffer32NumWordsRead = (inputBuffer32 - inputBuffer32Start);
+  *inputBuffer32NumWordsRead = (uint32_t) (inputBuffer32 - inputBuffer32Start);
   *dupNumPixelsPtr = dupNumPixels;
   *dupPixelPtr = dupPixel;
   return 0;  
@@ -477,7 +455,7 @@ maxvid_encode_sample32_generic_decode_dupcodes(
   assert((inputBuffer32 - inputBuffer32Start) > 0);
 #endif
   
-  *inputBuffer32NumWordsRead = (inputBuffer32 - inputBuffer32Start);
+  *inputBuffer32NumWordsRead = (uint32_t) (inputBuffer32 - inputBuffer32Start);
   *dupNumPixelsPtr = dupNumPixels;
   *dupPixelPtr = dupPixel;
   return 0;  
@@ -550,7 +528,7 @@ maxvid_encode_sample16_generic_decode_copycodes(
     EXTRA_RETURN(MV_ERROR_CODE_INVALID_INPUT);
   }
   
-  *inputBuffer32NumWordsRead = (inputBuffer32 - inputBuffer32Start);
+  *inputBuffer32NumWordsRead = (uint32_t) (inputBuffer32 - inputBuffer32Start);
   *copyNumPixelsPtr = copyNumPixels;
   return 0;  
 }
@@ -620,7 +598,7 @@ maxvid_encode_sample32_generic_decode_copycodes(
   assert((inputBuffer32 - inputBuffer32Start) > 0);
 #endif
   
-  *inputBuffer32NumWordsRead = (inputBuffer32 - inputBuffer32Start);
+  *inputBuffer32NumWordsRead = (uint32_t) (inputBuffer32 - inputBuffer32Start);
   *copyNumPixelsPtr = copyNumPixels;
   return 0;  
 }
@@ -826,7 +804,8 @@ NEXTSEGMENT:
 
 static inline
 int
-maxvid_encode_sample16_c4_encode_skipcodes(FILE *fp, uint32_t encodeFlags,
+maxvid_encode_sample16_c4_encode_skipcodes(NSMutableData *mC4Data,
+                                           uint32_t encodeFlags,
                                            uint32_t *pixelsWrittenPtr,
                                            const uint32_t skipNumPixels)
 {
@@ -862,7 +841,7 @@ maxvid_encode_sample16_c4_encode_skipcodes(FILE *fp, uint32_t encodeFlags,
     assert(skipCode == skipCountThisLoop);
 #endif
     
-    int status = fwrite_word(fp, skipCode);
+    int status = write_word(mC4Data, skipCode);
     if (status) {
       return status;
     }
@@ -882,7 +861,8 @@ maxvid_encode_sample16_c4_encode_skipcodes(FILE *fp, uint32_t encodeFlags,
 
 static inline
 int
-maxvid_encode_sample16_c4_encode_dupcodes(FILE *fp, uint32_t encodeFlags,
+maxvid_encode_sample16_c4_encode_dupcodes(NSMutableData *mC4Data,
+                                          uint32_t encodeFlags,
                                           uint32_t *pixelsWrittenPtr,
                                           const uint32_t dupNumPixels,
                                           const uint16_t dupPixel)
@@ -902,6 +882,16 @@ maxvid_encode_sample16_c4_encode_dupcodes(FILE *fp, uint32_t encodeFlags,
     
     if (dupCountLeft > maxDupNumPixels) {
       dupCountThisLoop = maxDupNumPixels;
+      
+      if ((dupCountLeft - dupCountThisLoop) == 1) {
+        // Tricky special case where splitting a DUP would result in
+        // the next DUP only covering 1 pixel. That would not be
+        // value since a DUP must cover at least 2 pixels. Instead,
+        // just have this DUP cover one fewer pixels so that the next
+        // one covers 2 pixels.
+        
+        dupCountThisLoop -= 1;
+      }
     } else {
       dupCountThisLoop = dupCountLeft;
     }
@@ -912,14 +902,14 @@ maxvid_encode_sample16_c4_encode_dupcodes(FILE *fp, uint32_t encodeFlags,
 #ifdef EXTRA_CHECKS
     uint32_t opCodeDecoded = (dupCode >> (16 + 14));
     assert(opCodeDecoded == opCode);
-    uint32_t numPartDecoded = ((dupCode << 2) >> 2+16);
+    uint32_t numPartDecoded = ((dupCode << 2) >> (2+16));
     
     assert(numPartDecoded == dupCountThisLoop);
     uint16_t pixelPartDecoded = (uint16_t)dupPixel;
     assert(pixelPartDecoded == dupPixel);
 #endif    
     
-    int status = fwrite_word(fp, dupCode);
+    int status = write_word(mC4Data, dupCode);
     if (status) {
       return status;
     }
@@ -941,7 +931,8 @@ maxvid_encode_sample16_c4_encode_dupcodes(FILE *fp, uint32_t encodeFlags,
 
 static inline
 int
-maxvid_encode_sample16_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
+maxvid_encode_sample16_c4_encode_copycodes(NSMutableData *mC4Data,
+                                           uint32_t encodeFlags,
                                            const uint32_t * restrict inputBuffer32,
                                            const uint32_t inputBuffer32NumWordsRead,
                                            uint32_t *pixelsWrittenPtr,
@@ -1014,14 +1005,14 @@ maxvid_encode_sample16_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
 #ifdef EXTRA_CHECKS
     uint32_t opCodeDecoded = (copyCode >> (16 + 14));
     assert(opCodeDecoded == opCode);
-    uint32_t numPartDecoded = ((copyCode << 2) >> 2+16);
+    uint32_t numPartDecoded = ((copyCode << 2) >> (2+16));
     assert(numPartDecoded == numPart);
     uint16_t pixelPartDecoded = (uint16_t)copyCode;
     assert(pixelPartDecoded == copyPixel);
 #endif    
     
     int status;
-    if ((status = fwrite_word(fp, copyCode))) {
+    if ((status = write_word(mC4Data, copyCode))) {
       return status;
     }
     
@@ -1063,7 +1054,7 @@ maxvid_encode_sample16_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
       }
       
       int status;
-      if ((status = fwrite_word(fp, nextWord))) {
+      if ((status = write_word(mC4Data, nextWord))) {
         return status;
       }
       
@@ -1100,14 +1091,15 @@ maxvid_encode_sample16_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
 
 static inline
 int
-maxvid_encode_sample16_c4_encode_donecode(FILE *fp, uint32_t encodeFlags)
+maxvid_encode_sample16_c4_encode_donecode(NSMutableData *mC4Data,
+                                          uint32_t encodeFlags)
 {
   uint32_t numPart = 0;
   MV_GENERIC_CODE opCode = DONE;
   
   uint32_t doneCode = (opCode << 30) | numPart;  
   
-  return fwrite_word(fp, doneCode);
+  return write_word(mC4Data, doneCode);
 }
 
 // maxvid_encode_c4_sample16()
@@ -1127,15 +1119,20 @@ maxvid_encode_c4_sample16(
                           const uint32_t * restrict inputBuffer32,
                           const uint32_t inputBufferNumWords,
                           const uint32_t frameBufferNumPixels,
-                          const char * restrict filePath,
-                          FILE * restrict file,
+                          NSMutableData *mC4Data,
                           const uint32_t encodeFlags)
 {
   uint32_t retcode = 0;
   
 #ifdef EXTRA_CHECKS
+  
   const int pagesize = getpagesize();
-  MAXVID_ASSERT(pagesize == MV_PAGESIZE, "pagesize");
+#if __LP64__
+  MAXVID_ASSERT((MV_PAGESIZE % pagesize) == 0, "pagesize");
+#else
+  MAXVID_ASSERT(pagesize == MV_PAGESIZE/4, "pagesize");
+#endif // __LP64__
+  
   MAXVID_ASSERT(inputBuffer32, "inputBuffer32");
   // The input buffer must be word aligned
   MAXVID_ASSERT(UINTMOD(inputBuffer32, sizeof(uint32_t)) == 0, "inputBuffer32 initial alignment");
@@ -1151,14 +1148,8 @@ maxvid_encode_c4_sample16(
   }  
 #endif
 
-  int didOpenFile = 0;
-  
-  if (file == NULL) {
-    file = fopen(filePath, "w");
-    if (file == NULL) {
-      return MV_ERROR_CODE_INVALID_FILENAME;
-    }
-    didOpenFile = 1;
+  if (mC4Data == nil) {
+    return MV_ERROR_CODE_INVALID_OUTPUT;
   }
   
   const uint32_t maxNumPixels = frameBufferNumPixels;
@@ -1166,7 +1157,7 @@ maxvid_encode_c4_sample16(
   
   while (1) {
 #ifdef EXTRA_CHECKS
-    uint32_t wordOffset = (inputBuffer32 - originalInputBuffer32);    
+    uint32_t wordOffset = (uint32_t) (inputBuffer32 - originalInputBuffer32);
     MAXVID_ASSERT(wordOffset < inputBufferNumWords, "read past indicated inputBufferNumWords");
 #endif
     
@@ -1188,7 +1179,7 @@ goto done; \
       status = maxvid_encode_sample16_generic_decode_skipcodes(inputBuffer32, &inputBuffer32NumWordsRead, inword, &skipNumPixels);
       RETCODE(status);
       
-      status = maxvid_encode_sample16_c4_encode_skipcodes(file, encodeFlags, &pixelsWritten, skipNumPixels);
+      status = maxvid_encode_sample16_c4_encode_skipcodes(mC4Data, encodeFlags, &pixelsWritten, skipNumPixels);
       RETCODE(status);
       
       inputBuffer32 += inputBuffer32NumWordsRead;
@@ -1197,11 +1188,16 @@ goto done; \
       uint16_t dupPixel;
       uint32_t inputBuffer32NumWordsRead;
       
+      if (encodeFlags & MaxvidEncodeFlags_NO_DUP) {
+        // If no DUP codes should be generated, then none should be found in the stream.
+        assert(0);
+      }
+      
       status = maxvid_encode_sample16_generic_decode_dupcodes(inputBuffer32, &inputBuffer32NumWordsRead, inword,
                                                               &dupNumPixels, &dupPixel);
       RETCODE(status);
       
-      status = maxvid_encode_sample16_c4_encode_dupcodes(file, encodeFlags, &pixelsWritten, dupNumPixels, dupPixel);
+      status = maxvid_encode_sample16_c4_encode_dupcodes(mC4Data, encodeFlags, &pixelsWritten, dupNumPixels, dupPixel);
       RETCODE(status);
       
       inputBuffer32 += inputBuffer32NumWordsRead;      
@@ -1213,7 +1209,7 @@ goto done; \
                                                                &copyNumPixels);
       RETCODE(status);
             
-      status = maxvid_encode_sample16_c4_encode_copycodes(file, encodeFlags,
+      status = maxvid_encode_sample16_c4_encode_copycodes(mC4Data, encodeFlags,
                                                           inputBuffer32, inputBuffer32NumWordsRead,
                                                           &pixelsWritten,
                                                           copyNumPixels);
@@ -1221,7 +1217,7 @@ goto done; \
       
       inputBuffer32 += inputBuffer32NumWordsRead;
     } else if (code == DONE) {
-      status = maxvid_encode_sample16_c4_encode_donecode(file, encodeFlags);
+      status = maxvid_encode_sample16_c4_encode_donecode(mC4Data, encodeFlags);
       RETCODE(status);
       inputBuffer32 += 1;
       
@@ -1249,11 +1245,8 @@ goto done; \
   
 done:
 #if defined(EXTRA_CHECKS)
-  assert(file);
+  assert([mC4Data length] > 0);
 #endif
-  if (didOpenFile) {
-    fclose(file);
-  }
   
   return retcode;  
 }
@@ -1262,7 +1255,8 @@ done:
 
 static inline
 int
-maxvid_encode_sample32_c4_encode_skipcodes(FILE *fp, uint32_t encodeFlags,
+maxvid_encode_sample32_c4_encode_skipcodes(NSMutableData *mC4Data,
+                                           uint32_t encodeFlags,
                                            uint32_t *pixelsWrittenPtr,
                                            const uint32_t skipNumPixels)
 {
@@ -1289,7 +1283,7 @@ maxvid_encode_sample32_c4_encode_skipcodes(FILE *fp, uint32_t encodeFlags,
     
     uint32_t skipCode = maxvid32_code(SKIP, skipCountThisLoop);
     
-    int status = fwrite_word(fp, skipCode);
+    int status = write_word(mC4Data, skipCode);
     if (status) {
       return status;
     }
@@ -1309,7 +1303,8 @@ maxvid_encode_sample32_c4_encode_skipcodes(FILE *fp, uint32_t encodeFlags,
 
 static inline
 int
-maxvid_encode_sample32_c4_encode_dupcodes(FILE *fp, uint32_t encodeFlags,
+maxvid_encode_sample32_c4_encode_dupcodes(NSMutableData *mC4Data,
+                                          uint32_t encodeFlags,
                                           uint32_t *pixelsWrittenPtr,
                                           const uint32_t dupNumPixels,
                                           const uint32_t dupPixel,
@@ -1319,36 +1314,51 @@ maxvid_encode_sample32_c4_encode_dupcodes(FILE *fp, uint32_t encodeFlags,
 #if defined(EXTRA_CHECKS)
   uint32_t originalPixelsWritten = pixelsWritten;
 #endif
-  uint32_t skipAfterThisLoop = skipAfter;
   
-  // each dup code can store a maximum of 22 bits worth of numPixels
+  // each c4 dup code can store a maximum of 22 bits worth of numPixels
   
   const uint32_t maxDupNumPixels = MV_MAX_22_BITS;
   
   uint32_t dupCountLeft = dupNumPixels;
   while (dupCountLeft > 0) {
     uint32_t dupCountThisLoop;
+    uint32_t splitMaxNumPixels = 0;
     
     if (dupCountLeft > maxDupNumPixels) {
+      splitMaxNumPixels = 1;
       dupCountThisLoop = maxDupNumPixels;
+      
+      if ((dupCountLeft - dupCountThisLoop) == 1) {
+        // Tricky special case where splitting a DUP would result in
+        // the next DUP only covering 1 pixel. That would not be
+        // value since a DUP must cover at least 2 pixels. Instead,
+        // just have this DUP cover one fewer pixels so that the next
+        // one covers 2 pixels.
+        
+        dupCountThisLoop -= 1;
+      }
     } else {
       dupCountThisLoop = dupCountLeft;
     }
-
+    
+    uint32_t skipAfterThisLoop = 0;
+    if (!splitMaxNumPixels) {
+      skipAfterThisLoop = skipAfter;
+    }
+    
     uint32_t dupCode = maxvid32_internal_code(DUP, dupCountThisLoop, skipAfterThisLoop);
     if (skipAfterThisLoop != 0) {
       pixelsWritten += skipAfterThisLoop;
-      skipAfterThisLoop = 0;
     }
     
-    int status = fwrite_word(fp, dupCode);
+    int status = write_word(mC4Data, dupCode);
     if (status) {
       return status;
     }
     
     // Write the pixel
     
-    status = fwrite_word(fp, dupPixel);
+    status = write_word(mC4Data, dupPixel);
     if (status) {
       return status;
     }
@@ -1370,7 +1380,8 @@ maxvid_encode_sample32_c4_encode_dupcodes(FILE *fp, uint32_t encodeFlags,
 
 static inline
 int
-maxvid_encode_sample32_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
+maxvid_encode_sample32_c4_encode_copycodes(NSMutableData *mC4Data,
+                                           uint32_t encodeFlags,
                                            const uint32_t * restrict inputBuffer32,
                                            const uint32_t inputBuffer32NumWordsRead,
                                            uint32_t *pixelsWrittenPtr,
@@ -1381,11 +1392,16 @@ maxvid_encode_sample32_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
 #if defined(EXTRA_CHECKS)
   uint32_t originalPixelsWritten = pixelsWritten;
 #endif
-  uint32_t skipAfterThisLoop = skipAfter;
   
 #ifdef EXTRA_CHECKS
   const uint32_t *inputBuffer32Max = inputBuffer32 + inputBuffer32NumWordsRead;
 #endif
+  
+  // Note that reading pixels from one "segment" can happen across different
+  // emitted COPY codes since the output code size could be smaller than
+  // the size of a specific segment.
+  
+  uint32_t numPixelsThisSegment = 0;
   
   // Break copies into chunks taking the copy "num" max into account.
     
@@ -1393,8 +1409,10 @@ maxvid_encode_sample32_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
   
   for (uint32_t copyCountLeft = copyNumPixels; copyCountLeft; ) {
     uint32_t copyCountThisLoop;
+    uint32_t splitMaxNumPixels = 0;
     
     if (copyCountLeft > maxCopyPixelsNum) {
+      splitMaxNumPixels = 1;
       copyCountThisLoop = maxCopyPixelsNum;
     } else {
       copyCountThisLoop = copyCountLeft;
@@ -1409,21 +1427,24 @@ maxvid_encode_sample32_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
         
     copyCountLeft -= copyCountThisLoop;
     
+    uint32_t skipAfterThisLoop = 0;
+    if (!splitMaxNumPixels) {
+      skipAfterThisLoop = skipAfter;
+    }
+    
     uint32_t copyCode = maxvid32_internal_code(COPY, copyCountThisLoop, skipAfterThisLoop);
     if (skipAfterThisLoop != 0) {
       pixelsWritten += skipAfterThisLoop;
-      skipAfterThisLoop = 0;
-    }    
+    }
     
     int status;
-    if ((status = fwrite_word(fp, copyCode))) {
+    if ((status = write_word(mC4Data, copyCode))) {
       return status;
     }
     
     // Copy a total of copyCountThisLoop pixels from N code/pixel segments.
     
     uint32_t numPixels = copyCountThisLoop;
-    uint32_t numPixelsThisSegment = 0;
     
     do {
       if (numPixelsThisSegment == 0) {
@@ -1460,7 +1481,7 @@ maxvid_encode_sample32_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
       uint32_t pixel = *inputBuffer32++;
       
       int status;
-      if ((status = fwrite_word(fp, pixel))) {
+      if ((status = write_word(mC4Data, pixel))) {
         return status;
       }
       
@@ -1491,18 +1512,19 @@ maxvid_encode_sample32_c4_encode_copycodes(FILE *fp, uint32_t encodeFlags,
 
 static inline
 int
-maxvid_encode_sample32_c4_encode_donecode(FILE *fp, uint32_t encodeFlags)
+maxvid_encode_sample32_c4_encode_donecode(NSMutableData *mC4Data,
+                                          uint32_t encodeFlags)
 {
   uint32_t doneCode = maxvid32_code(DONE, 0);
   
-  int status = fwrite_word(fp, doneCode);
+  int status = write_word(mC4Data, doneCode);
   if (status != 0) {
     return status;
   }
   
   // DONE is always followed by a zero word of padding
 
-  return fwrite_word(fp, 0);
+  return write_word(mC4Data, 0);
 }
 
 // maxvid_encode_c4_sample32()
@@ -1529,15 +1551,20 @@ maxvid_encode_c4_sample32(
                           const uint32_t * restrict inputBuffer32,
                           const uint32_t inputBufferNumWords,
                           const uint32_t frameBufferNumPixels,
-                          const char * restrict filePath,
-                          FILE * restrict file,
+                          NSMutableData *mC4Data,
                           const uint32_t encodeFlags)
 {
   uint32_t retcode = 0;
   
 #ifdef EXTRA_CHECKS
+  
   const int pagesize = getpagesize();
-  MAXVID_ASSERT(pagesize == MV_PAGESIZE, "pagesize");
+#if __LP64__
+  MAXVID_ASSERT((MV_PAGESIZE % pagesize) == 0, "pagesize");
+#else
+  MAXVID_ASSERT(pagesize == MV_PAGESIZE/4, "pagesize");
+#endif // __LP64__
+
   MAXVID_ASSERT(inputBuffer32, "inputBuffer32");
   // The input buffer must be word aligned
   MAXVID_ASSERT(UINTMOD(inputBuffer32, sizeof(uint32_t)) == 0, "inputBuffer32 initial alignment");
@@ -1554,16 +1581,8 @@ maxvid_encode_c4_sample32(
   }
 #endif
  
-  int didOpenFile = 0;
-  
-  if (file == NULL) {
-    // If NULL is passed as file argument, then open a few file for writing.
-    // Otherwise, use an existing FILE and append to the current file location.
-    file = fopen(filePath, "w");
-    if (file == NULL) {
-      return MV_ERROR_CODE_INVALID_FILENAME;
-    }
-    didOpenFile = 1;
+  if (mC4Data == nil) {
+    return MV_ERROR_CODE_INVALID_OUTPUT;
   }
   
   const uint32_t maxNumPixels = frameBufferNumPixels;
@@ -1572,7 +1591,7 @@ maxvid_encode_c4_sample32(
   
   while (1) {
 #ifdef EXTRA_CHECKS
-    uint32_t wordOffset = (inputBuffer32 - originalInputBuffer32);    
+    uint32_t wordOffset = (uint32_t) (inputBuffer32 - originalInputBuffer32);
     MAXVID_ASSERT(wordOffset < inputBufferNumWords, "read past indicated inputBufferNumWords");
 #endif
     
@@ -1588,7 +1607,7 @@ goto done; \
     if (skipAfterNumPixels != 0) {
       // Emit any left over SKIP value in the event that a big skip could not be folded into a DUP or COPY op
 
-      status = maxvid_encode_sample32_c4_encode_skipcodes(file, encodeFlags, &pixelsWritten, skipAfterNumPixels);
+      status = maxvid_encode_sample32_c4_encode_skipcodes(mC4Data, encodeFlags, &pixelsWritten, skipAfterNumPixels);
       RETCODE(status);
       
       skipAfterNumPixels = 0;
@@ -1608,7 +1627,7 @@ goto done; \
       status = maxvid_encode_sample32_generic_decode_skipcodes(inputBuffer32, &inputBuffer32NumWordsRead, inword, &skipNumPixels);
       RETCODE(status);
       
-      status = maxvid_encode_sample32_c4_encode_skipcodes(file, encodeFlags, &pixelsWritten, skipNumPixels);
+      status = maxvid_encode_sample32_c4_encode_skipcodes(mC4Data, encodeFlags, &pixelsWritten, skipNumPixels);
       RETCODE(status);
       
       inputBuffer32 += inputBuffer32NumWordsRead;      
@@ -1617,6 +1636,11 @@ goto done; \
       uint32_t dupPixel;
       uint32_t inputBuffer32NumWordsRead;
       uint32_t skipAfterThisOp = 0;
+      
+      if (encodeFlags & MaxvidEncodeFlags_NO_DUP) {
+        // If no DUP codes should be generated, then none should be found in the stream.
+        assert(0);
+      }
       
       status = maxvid_encode_sample32_generic_decode_dupcodes(inputBuffer32, &inputBuffer32NumWordsRead, inword,
                                                               &dupNumPixels, &dupPixel);
@@ -1645,7 +1669,7 @@ goto done; \
         inputBuffer32 += inputBuffer32NumWordsRead;
       }
       
-      status = maxvid_encode_sample32_c4_encode_dupcodes(file, encodeFlags, &pixelsWritten, dupNumPixels, dupPixel, skipAfterThisOp);
+      status = maxvid_encode_sample32_c4_encode_dupcodes(mC4Data, encodeFlags, &pixelsWritten, dupNumPixels, dupPixel, skipAfterThisOp);
       RETCODE(status);
     } else if (code == COPY) {
       uint32_t copyNumPixels;
@@ -1662,7 +1686,7 @@ goto done; \
       inputBuffer32 += inputBuffer32NumWordsRead;
       
       // If the code following a COPY is a SKIP code, then condense 1 to N SKIP codes and select
-      // 8 bits worth of SKIP pixels to fold into the DUP code.
+      // 8 bits worth of SKIP pixels to fold into the COPY code.
       
       inword = *inputBuffer32;
       MV_GENERIC_CODE nextCode = maxvid_encode_sample32_generic_nextcode(inword);
@@ -1682,14 +1706,14 @@ goto done; \
         inputBuffer32 += inputBuffer32NumWordsReadForSkip;
       }
       
-      status = maxvid_encode_sample32_c4_encode_copycodes(file, encodeFlags,
+      status = maxvid_encode_sample32_c4_encode_copycodes(mC4Data, encodeFlags,
                                                           inputBuffer32AtCopyStart, inputBuffer32NumWordsRead,
                                                           &pixelsWritten,
                                                           copyNumPixels,
                                                           skipAfterThisOp);
       RETCODE(status);
     } else if (code == DONE) {
-      status = maxvid_encode_sample32_c4_encode_donecode(file, encodeFlags);
+      status = maxvid_encode_sample32_c4_encode_donecode(mC4Data, encodeFlags);
       RETCODE(status);
       inputBuffer32 += 1;
       
@@ -1717,11 +1741,8 @@ goto done; \
   
 done:
 #if defined(EXTRA_CHECKS)
-  assert(file);
+  assert([mC4Data length] > 0);
 #endif
-  if (didOpenFile) {
-    fclose(file);
-  }
 
   return retcode;
 }
@@ -1770,7 +1791,11 @@ NSArray* calculateDeltaPixels16(
         deltaPixel->newValue = new_pixel;
         
         [deltaPixels addObject:deltaPixel];
+        
+#if __has_feature(objc_arc)
+#else
         [deltaPixel release];
+#endif // objc_arc
       }
     }
   }
@@ -1811,7 +1836,11 @@ NSArray* calculateDeltaPixels32(
         deltaPixel->newValue = new_pixel;
         
         [deltaPixels addObject:deltaPixel];
+        
+#if __has_feature(objc_arc)
+#else
         [deltaPixel release];
+#endif // objc_arc
       }
     }
   }
@@ -1828,7 +1857,8 @@ maxvid_encode_generic_delta_pixels16(const uint16_t * restrict prevInputBuffer16
                                      const uint32_t inputBufferNumWords,
                                      uint32_t width,
                                      uint32_t height,
-                                     BOOL *emitKeyframeAnyway)
+                                     BOOL *emitKeyframeAnyway,
+                                     uint32_t encodeFlags)
 {
   // Calculate delta between previous framebuffer and the current one
   
@@ -1849,7 +1879,8 @@ maxvid_encode_generic_delta_pixels16(const uint16_t * restrict prevInputBuffer16
     BOOL worked = maxvid_calculate_delta_pixels(deltaPixels,
                                                 16,
                                                 mData,
-                                                width * height);
+                                                width * height,
+                                                encodeFlags);
     
     assert(worked);
   }
@@ -1867,7 +1898,8 @@ maxvid_encode_generic_delta_pixels32(const uint32_t * restrict prevInputBuffer32
                                      const uint32_t inputBufferNumWords,
                                      uint32_t width,
                                      uint32_t height,
-                                     BOOL *emitKeyframeAnyway)
+                                     BOOL *emitKeyframeAnyway,
+                                     uint32_t encodeFlags)
 {
   // Calculate delta between previous framebuffer and the current one
   
@@ -1888,7 +1920,8 @@ maxvid_encode_generic_delta_pixels32(const uint32_t * restrict prevInputBuffer32
     BOOL worked = maxvid_calculate_delta_pixels(deltaPixels,
                                                 32,
                                                 mData,
-                                                width * height);
+                                                width * height,
+                                                encodeFlags);
     
     assert(worked);
   }
@@ -1945,7 +1978,7 @@ void emit_copy_run(NSMutableData *mvidWordCodes,
                    int bpp)
 
 {
-  uint32_t copyCount = [copyPixels count];
+  uint32_t copyCount = (uint32_t) [copyPixels count];
   uint32_t numToCopyThisLoop;
 
   while (copyCount != 0) {
@@ -2076,7 +2109,8 @@ void process_pixel_run(NSMutableData *mvidWordCodes,
                        NSMutableArray *mPixelRun,
                        int prevPixelOffset,
                        int nextPixelOffset,
-                       int bpp)
+                       int bpp,
+                       uint32_t encodeFlags)
 {
   if ([mPixelRun count] > 0) {
     // Emit codes for this run of pixels
@@ -2085,12 +2119,14 @@ void process_pixel_run(NSMutableData *mvidWordCodes,
     int firstPixelOffset = -1;
     int lastPixelOffset = -1;
     
-    runLength = [mPixelRun count];
+    runLength = (int) [mPixelRun count];
       
     firstPixelOffset = ((DeltaPixel*)[mPixelRun objectAtIndex:0])->offset;
     lastPixelOffset = ((DeltaPixel*)[mPixelRun lastObject])->offset;
     
     assert((lastPixelOffset - firstPixelOffset + 1) == runLength);
+    
+    uint32_t checkForDup = (encodeFlags & MaxvidEncodeFlags_NO_DUP) == 0;
     
     // Scan over the pixels in a run looking for a DUP pattern,
     // meaning a run of delta pixels where each value is the same
@@ -2105,7 +2141,7 @@ void process_pixel_run(NSMutableData *mvidWordCodes,
     for (DeltaPixel *deltaPixel in mPixelRun) {
       uint32_t value = deltaPixel->newValue;
       
-      if ((isFirstPixelInRun == FALSE) && (value == prevPixelValue)) {
+      if ((isFirstPixelInRun == FALSE) && (value == prevPixelValue) && checkForDup) {
         // This delta pixel is the same value as the previous one
         
         if ((dupCount == 0) && ([copyPixels count] > 0)) {
@@ -2129,6 +2165,7 @@ void process_pixel_run(NSMutableData *mvidWordCodes,
         }
       } else {
         // This pixel is not the same value as the previous one, or it is the first pixel
+        // or checking for DUP codes has been disabled.
         
         if (dupCount != 0) {
           // Emit a previous DUP pattern when durrent pixel does not match previous
@@ -2192,7 +2229,8 @@ BOOL
 maxvid_calculate_delta_pixels(NSArray *deltaPixels,
                               int bpp,
                               NSMutableData *mData,
-                              NSUInteger frameBufferNumPixels)
+                              NSUInteger frameBufferNumPixels,
+                              uint32_t encodeFlags)
 {
   NSMutableData *mvidWordCodes = [NSMutableData dataWithCapacity:1024];
   
@@ -2215,7 +2253,7 @@ maxvid_calculate_delta_pixels(NSArray *deltaPixels,
       // and in that case the existing run is of zero length. Otherwise, emit
       // the previous run of pixels so that we can start a new run.
       
-      process_pixel_run(mvidWordCodes, mPixelRun, prevPixelOffset, nextPixelOffset, bpp);
+      process_pixel_run(mvidWordCodes, mPixelRun, prevPixelOffset, nextPixelOffset, bpp, encodeFlags);
       
       [mPixelRun addObject:deltaPixel];
     }
@@ -2227,7 +2265,7 @@ maxvid_calculate_delta_pixels(NSArray *deltaPixels,
   // At the end of the delta pixels, we could have a run of pixels that still need to
   // be processed. In addition, we might need to SKIP to the end of the framebuffer.
   
-  process_pixel_run(mvidWordCodes, mPixelRun, prevPixelOffset, frameBufferNumPixels, bpp);
+  process_pixel_run(mvidWordCodes, mPixelRun, prevPixelOffset, (int)frameBufferNumPixels, bpp, encodeFlags);
   
   // Emit DONE code to indicate that all codes have been emitted
   {
@@ -2257,7 +2295,8 @@ maxvid_write_delta_pixels(AVMvidFileWriter *mvidWriter,
                           NSData *maxvidData,
                           void *inputBuffer,
                           uint32_t inputBufferNumBytes,
-                          NSUInteger frameBufferNumPixels)
+                          NSUInteger frameBufferNumPixels,
+                          const uint32_t encodeFlags)
 {
   int retcode;
   
@@ -2271,64 +2310,31 @@ maxvid_write_delta_pixels(AVMvidFileWriter *mvidWriter,
   adler = maxvid_adler32(0, (unsigned char *)inputBuffer, inputBufferNumBytes);
   assert(adler != 0);
   
-  // Convert the generic maxvid codes to the optimized c4 encoding and append to the output file
-  
-  FILE *tmpfp = tmpfile();
-  if (tmpfp == NULL) {
-    assert(0);
-  }
+  // Convert the generic maxvid codes to the optimized c4 encoding
   
   uint32_t *maxvidCodeBuffer = (uint32_t*)maxvidData.bytes;
-  uint32_t numMaxvidCodeWords = maxvidData.length / sizeof(uint32_t);
+  uint32_t numMaxvidCodeWords = (uint32_t) (maxvidData.length / sizeof(uint32_t));
+  
+  NSMutableData *mC4Data = [NSMutableData dataWithCapacity:frameBufferNumPixels];
   
   if (bpp == 16) {
-    retcode = maxvid_encode_c4_sample16(maxvidCodeBuffer, numMaxvidCodeWords, frameBufferNumPixels, NULL, tmpfp, 0);
+    retcode = maxvid_encode_c4_sample16(maxvidCodeBuffer, numMaxvidCodeWords, (uint32_t)frameBufferNumPixels, mC4Data, encodeFlags);
   } else if (bpp == 24 || bpp == 32) {
-    retcode = maxvid_encode_c4_sample32(maxvidCodeBuffer, numMaxvidCodeWords, frameBufferNumPixels, NULL, tmpfp, 0);
+    retcode = maxvid_encode_c4_sample32(maxvidCodeBuffer, numMaxvidCodeWords, (uint32_t)frameBufferNumPixels, mC4Data, encodeFlags);
   } else {
     assert(FALSE);
   }
   
-  // Read tmp file contents into buffer.
-  
   if (retcode == 0) {
-    // Read file contents into a buffer, then write that buffer into .mvid file
+    // Write codes to mvid file
     
-    uint32_t filesize;
+    BOOL worked = [mvidWriter writeDeltaframe:(void*)mC4Data.bytes bufferSize:(int)mC4Data.length adler:adler];
     
-    fpsize(tmpfp, &filesize);
-    
-    assert(filesize > 0);
-    
-    char *buffer = malloc(filesize);
-    
-    if (buffer == NULL) {
-      // Malloc failed
-      
+    if (worked == FALSE) {
       retcode = MV_ERROR_CODE_WRITE_FAILED;
-    } else {
-      size_t result = fread(buffer, filesize, 1, tmpfp);
-      
-      if (result != 1) {
-        retcode = MV_ERROR_CODE_READ_FAILED;
-      } else {        
-        // Write codes to mvid file
-        
-        BOOL worked = [mvidWriter writeDeltaframe:buffer bufferSize:filesize adler:adler];
-        
-        if (worked == FALSE) {
-          retcode = MV_ERROR_CODE_WRITE_FAILED;
-        }
-      }
-      
-      free(buffer);
     }
   }
-  
-  if (tmpfp != NULL) {
-    fclose(tmpfp);
-  }
-  
+
   if (retcode == 0) {
     return TRUE;
   } else {

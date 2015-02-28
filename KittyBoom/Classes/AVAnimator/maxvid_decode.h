@@ -26,7 +26,7 @@ typedef enum {
 // Error codes returned by encode functions
 
 #define MV_ERROR_CODE_INVALID_INPUT 1
-#define MV_ERROR_CODE_INVALID_FILENAME 2
+#define MV_ERROR_CODE_INVALID_OUTPUT 2
 #define MV_ERROR_CODE_WRITE_FAILED 3
 #define MV_ERROR_CODE_READ_FAILED 4
 
@@ -45,17 +45,22 @@ typedef enum {
 #define MV_MAX_16_BITS 0xFFFF
 #define MV_MAX_22_BITS 0x3FFFFF
 #define MV_MAX_24_BITS 0xFFFFFF
-#define MV_MAX_27_BITS 0x7FFFFFF
 #define MV_MAX_30_BITS 0x3FFFFFFF
 #define MV_MAX_32_BITS 0xFFFFFFFF
 
-#define MV_PAGESIZE 4096
+// Previously, MV_PAGESIZE was 4 kB. This caused a problem on ARM64 because
+// Apple changed the OS pagesize() to 16 kB. So, as of v2 change the default
+// padding to always be 16 kB so that both 32 and 64 runtimes will be
+// exactly page aligned when a keyframe starts.
+
+#define MV_PAGESIZE (4096*4)
+
 #define MV16_NUM_PIXELS_ONE_PAGE (MV_PAGESIZE / sizeof(uint16_t))
 #define MV_NUM_WORDS_ONE_PAGE (MV_PAGESIZE / sizeof(uint32_t))
 
 // bitwise AND version of (ptr % pot)
 
-#if defined(_LP64)
+#if __LP64__
 // CPU uses 64 bit pointers, need additional cast to avoid compiler warning
 #define UINTMOD(ptr, pot) (((uint32_t)(uint64_t)ptr) & (pot - 1))
 #else
@@ -82,7 +87,7 @@ if (0) { assert(num); }
 
 # define MV32_PARSE_OP_NUM_SKIP(word, op, num, skip) \
 const uint32_t op = (word >> 8) & 0x3; \
-const uint32_t num = ((word >> 8+2) & MV_MAX_22_BITS); \
+const uint32_t num = ((word >> (8+2)) & MV_MAX_22_BITS); \
 const uint32_t skip = (word & MV_MAX_8_BITS); \
 if (0) { assert(op); } \
 if (0) { assert(num); } \

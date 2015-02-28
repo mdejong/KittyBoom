@@ -1,5 +1,5 @@
 //
-//  AVAnimatorView.m
+//  AVAnimatorMedia.m
 //
 //  Created by Moses DeJong on 3/18/09.
 //
@@ -16,6 +16,7 @@
 
 #import "CGFrameBuffer.h"
 #import "AVResourceLoader.h"
+#import "AVFrame.h"
 #import "AVFrameDecoder.h"
 
 #import "AVAppResourceLoader.h"
@@ -35,14 +36,14 @@
 
 - (id) initWithMedia:(AVAnimatorMedia*)inMedia;
 
-@end // class AVAnimatorViewAudioPlayerDelegate declaration
+@end // class AVAnimatorMediaAudioPlayerDelegate declaration
 
 @implementation AVAnimatorMediaAudioPlayerDelegate
 
 - (id) initWithMedia:(AVAnimatorMedia*)inMedia {
 	self = [super init];
 	if (self) {
-    // Note that we don't retain a ref here, since the AVAnimatorView is
+    // Note that we don't retain a ref here, as AVAnimatorView/AVAnimatorLayer is
     // the only object that can ref this object, holding a ref would create
     // a circular reference and the view would never be deallocated.
     self->media = inMedia;
@@ -81,10 +82,11 @@
 
 @end // class AVAnimatorMediaAudioPlayerDelegate implementation
 
-// private properties declaration for AVAnimatorView class
+// private properties declaration for AVAnimatorMedia class
+
 #include "AVAnimatorMediaPrivate.h"
 
-// AVAnimatorView class
+// class AVAnimatorMedia
 
 @implementation AVAnimatorMedia
 
@@ -135,12 +137,6 @@
     
 	self.animatorAudioURL = nil;
   
-  /*
-   CGImageRef imgRef1 = imageView.image.CGImage;
-   CGImageRef imgRef2 = prevFrame.CGImage;
-   CGImageRef imgRef3 = nextFrame.CGImage;
-   */
-  
 	self.prevFrame = nil;
 	self.nextFrame = nil;
   
@@ -172,7 +168,10 @@
   
   if (self.avAudioPlayer) {
     self.avAudioPlayer.delegate = self->m_originalAudioDelegate;
+#if __has_feature(objc_arc)
+#else
     [self->m_retainedAudioDelegate release];
+#endif // objc_arc
     self.avAudioPlayer = nil;
   }
   self.audioSimulatedStartTime = nil;
@@ -180,7 +179,10 @@
   self.audioPlayerFallbackStartTime = nil;
   self.audioPlayerFallbackNowTime = nil;
   
+#if __has_feature(objc_arc)
+#else
   [super dealloc];
+#endif // objc_arc
 }
 
 // static ctor
@@ -188,8 +190,11 @@
 + (AVAnimatorMedia*) aVAnimatorMedia
 {
   AVAnimatorMedia *obj = [[AVAnimatorMedia alloc] init];
-  [obj autorelease];
+#if __has_feature(objc_arc)
   return obj;
+#else
+  return [obj autorelease];
+#endif // objc_arc
 }
 
 - (id) init
@@ -221,7 +226,6 @@
 - (void) _createAudioPlayer
 {
 	NSError *error;
-	NSError **errorPtr = &error;
 	AVAudioPlayer *avPlayer = nil;
   
   if (self.animatorAudioURL == nil) {
@@ -236,8 +240,12 @@
 	NSAssert(audioURLTail != nil, @"audioURLTail is nil");
   
 	avPlayer = [AVAudioPlayer alloc];
-	avPlayer = [avPlayer initWithContentsOfURL:audioURL error:errorPtr];
-  [avPlayer autorelease];
+	avPlayer = [avPlayer initWithContentsOfURL:audioURL error:&error];
+  
+#if __has_feature(objc_arc)
+#else
+	avPlayer = [avPlayer autorelease];
+#endif // objc_arc
   
 	if (error.code == kAudioFileUnsupportedFileTypeError) {
 		NSAssert(FALSE, @"unsupported audio file format");
@@ -348,7 +356,7 @@
 	[self.animatorReadyTimer invalidate];
 	self.animatorReadyTimer = nil;
   
-  //NSLog(@"AVAnimatorViewController: _cleanupReadyToAnimate");
+  //NSLog(@"AVAnimatorMedia: _cleanupReadyToAnimate");
 }
 
 // When a media item is ready to load resources needed for audio/video
@@ -580,10 +588,17 @@
 		return;
 	}
   
+  // Media object must be attached to a renderer otherwise it is not possible to
+  // start animating
+  
+  if (self.renderer == nil) {
+    NSAssert(FALSE, @"renderer not defined for media object, attachMedia must be invoked before startAnimator");
+  }
+  
   // Implicitly rewind before playing, this basically just deallocates any previous
   // play resources in the frame decoder.
   
-  [self rewind];  
+  [self rewind];
   
 	// Can only transition from PAUSED to ANIMATING via unpause
   
@@ -669,11 +684,16 @@
 	}
 #endif
 
+	BOOL wasNeverStarted = FALSE;
+  
 	if (self.state == STOPPED) {
 		// When already stopped, don't generate another AVAnimatorDidStopNotification
 		return;
 	} else if (self.state == FAILED) {
 		return;
+	} else if (self.state <= READY) {
+		// Play was never started successfully
+		wasNeverStarted = TRUE;
 	}
   
 	// stopAnimator can be invoked in any state, it needs to cleanup
@@ -702,15 +722,21 @@
 	self.prevFrame = nil;
 	self.nextFrame = nil;
   
-	// Reset idle timer
-	
-	UIApplication *thisApplication = [UIApplication sharedApplication];	
-  thisApplication.idleTimerDisabled = NO;
-  
-	// Send notification to object(s) that regestered interest in the stop action
-  
-	[[NSNotificationCenter defaultCenter] postNotificationName:AVAnimatorDidStopNotification
-                                                      object:self];
+  if (wasNeverStarted == FALSE) {
+    // Reset idle timer and delivering the stop notification should only
+    // be done if the player was actually started previously.
+    
+    UIApplication *thisApplication = [UIApplication sharedApplication];
+    thisApplication.idleTimerDisabled = NO;
+    
+    // Send notification to object(s) that regestered interest in the stop action.
+    // Note that this stop callback could attach a renderer and call startAnimator,
+    // so it is important that this stop notification is only delivered when the
+    // media is actually playing.
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVAnimatorDidStopNotification
+                                                        object:self];
+  }
   
   // Note that invoking stopAnimator leaves the current frame at the same value,
   // the frame and frame decoder do not automatically rewind.
@@ -1306,23 +1332,23 @@
   }
 #endif // DEBUG_OUTPUT
   
-	// Display the "next" frame image, this logic does
-	// the minimium amount of work to paint the display
-	// with the contents of a UIImage. No objects are
-	// allocated in this callback and no objects
-	// are released. In the case of a duplicate frame
-	// where the next frame is the exact same data as
-	// the current frame, don't change self.image
-	// so that no repaint is done.
+	// Display the "next" frame by sending the AVFrame
+	// object to the render target. When a duplicate
+	// frame is found, the render target should take
+	// care to not actually repaint the display.
   
-	UIImage *currentImage = self.renderer.image;
-	UIImage *nextImage = self->m_nextFrame;
-  NSAssert(nextImage, @"nextImage");
+	AVFrame *nextFrame = self.nextFrame;
+	NSAssert(nextFrame, @"nextFrame");
   
-	if (nextImage != currentImage) {
-		self.prevFrame = currentImage;
-		self.renderer.image = nextImage;
-	}
+	id<AVAnimatorMediaRendererProtocol> renderer = self.renderer;
+	AVFrame *currentFrame = renderer.AVFrame;
+    
+	self.prevFrame = currentFrame;
+#if defined(__GNUC__) && !defined(__clang__)
+	[renderer setAVFrame:nextFrame];
+#else
+	renderer.AVFrame = nextFrame;
+#endif
   
   // Test release of frame now, instead of in next decode callback. Seems
   // that holding until the next decode does not actually release sometimes.
@@ -1384,16 +1410,16 @@
 	NSInteger nextFrameNum = self.currentFrame + 1;
 	NSAssert(nextFrameNum >= 0 && nextFrameNum < self.animatorNumFrames, @"nextFrameNum is invalid");
   
-	// Deallocate UIImage object for the frame before
+	// Deallocate AVFrame/UIImage object for the frame before
 	// the currently displayed one. This will drop the
 	// provider ref if it is holding the last ref.
 	// Note that this should also clear the data
 	// provider flag on an associated CGFrameBuffer
 	// so that it can be used again.
   
-	UIImage *prevFrameImage = self.prevFrame;
+	AVFrame *prevFrame = self.prevFrame;
   
-	if (prevFrameImage != nil) {
+	if (prevFrame != nil) {
 /*
 		if (prevFrameImage != self.nextFrame) {
 			NSAssert(prevFrameImage != self.renderer.image,
@@ -1413,26 +1439,31 @@
     //		} else {
     //			NSLog([NSString stringWithFormat:@"should have been freed"]);			
     //		}
+        prevFrame = nil;
 	}
   
   // Advance the "current frame" in the movie. In the case where
   // the next frame is exactly the same as the previous frame,
   // then the isDuplicate flag is TRUE.
   
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  BOOL wasChanged;
+  BOOL wasChanged = FALSE;
   
-  AVFrame *frame = [self.frameDecoder advanceToFrame:nextFrameNum];
+  @autoreleasepool {
   
+  AVFrameDecoder *decoder = self.frameDecoder;
+      
+  AVFrame *frame = [decoder advanceToFrame:nextFrameNum];
+      
+  //NSLog(@"decoded frame %@", frame);
+  
+  self.nextFrame = frame;
+      
   if (frame.isDuplicate == TRUE) {
     wasChanged = FALSE;
   } else {
-    UIImage *img = frame.image;
-    self.nextFrame = img;
     wasChanged = TRUE;
   }
-  
-  [pool drain];
+  }
   return wasChanged;
 }
 
@@ -1505,13 +1536,16 @@
   // will be released while the app is in the background.
   // Note that duplicateCurrentFrame could return nil.
 
+  AVFrame *resultFrame = nil;
+  
   if (copyFinalFrame) {
-    AVFrame *frame = [self.frameDecoder duplicateCurrentFrame];
-    UIImage *finalFrameCopy = frame.image;
-    self.renderer.image = finalFrameCopy;
-  } else {
-    self.renderer.image = nil;
+    resultFrame = [self.frameDecoder duplicateCurrentFrame];
   }
+#if defined(__GNUC__) && !defined(__clang__)
+  [self.renderer setAVFrame:resultFrame];
+#else
+  self.renderer.AVFrame = resultFrame;
+#endif
   
   self.renderer = nil;
   
@@ -1525,6 +1559,46 @@
   // The view and the media objects should have dropped all references to frame buffer objects now.
   
   [self.frameDecoder releaseDecodeResources];
+}
+
+- (NSString*) description
+{
+  NSString *stateStr;
+  
+  AVAnimatorPlayerState state = self.state;
+  switch (state) {
+    case ALLOCATED:
+      stateStr = @"ALLOCATED";
+      break;
+    case LOADED:
+      stateStr = @"LOADED";
+      break;
+    case FAILED:
+      stateStr = @"FAILED";
+      break;
+    case PREPPING:
+      stateStr = @"PREPPING";
+      break;
+    case READY:
+      stateStr = @"READY";
+      break;
+    case ANIMATING:
+      stateStr = @"ANIMATING";
+      break;
+    case STOPPED:
+      stateStr = @"STOPPED";
+      break;
+    case PAUSED:
+      stateStr = @"PAUSED";
+      break;
+    default:
+      NSAssert(FALSE, @"unmatched state %d", state);
+  }
+  
+  return [NSString stringWithFormat:@"AVAnimatorMedia %p, state %@, loader %@, decoder %@",
+          self,
+          stateStr,
+          self.resourceLoader, self.frameDecoder];
 }
 
 @end
