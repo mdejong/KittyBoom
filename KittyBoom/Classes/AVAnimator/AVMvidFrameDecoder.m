@@ -286,7 +286,23 @@
     
     if (worked) {
       uint32_t bpp = hPtr->bpp;
-      NSAssert(bpp == 16 || bpp == 24 || bpp == 32, @"bpp must be 16, 24, 32");
+      if (bpp == 16 || bpp == 24 || bpp == 32) {
+        // nop
+      } else {
+        worked = FALSE;
+        NSAssert(FALSE, @"bpp must be 16, 24, 32");
+      }
+    }
+
+    if (worked) {
+      // Verify the minimum file version, previously version 0 and 1 files
+      // were acceptable but version 2 is now required to support ARM64.
+      // The only exception is the upgrade path where older versions are allowed.
+      
+      if (self.upgradeFromV1 == FALSE && maxvid_file_version(hPtr) < MV_FILE_VERSION_TWO) {
+        worked = FALSE;
+        NSAssert(FALSE, @"only .mvid files version 2 or newer can be used, you must -upgrade this .mvid from version %d", maxvid_file_version(hPtr));
+      }
     }
   }
   
@@ -795,10 +811,6 @@
         MVFileHeader *header = [self header];
         
         uint32_t numBytesToIncludeInAdler;
-        
-        if (self.upgradeFromV1 == FALSE && maxvid_file_version(header) < MV_FILE_VERSION_TWO) {
-          NSAssert(FALSE, @"only .mvid files version 2 or newer can be used, you must -upgrade this .mvid from version %d", maxvid_file_version(header));
-        }
         
         if (maxvid_file_version(header) == MV_FILE_VERSION_ZERO) {
           // File rev 0 will calculate an adler checksum using (width * height * numBytesInPixel)

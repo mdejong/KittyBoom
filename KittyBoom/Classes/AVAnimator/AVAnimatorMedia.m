@@ -598,7 +598,18 @@
   // Implicitly rewind before playing, this basically just deallocates any previous
   // play resources in the frame decoder.
   
-  [self rewind];
+  BOOL wasNeverStarted = FALSE;
+  
+  if (self.state <= READY) {
+    // Play was never started successfully
+    wasNeverStarted = TRUE;
+  }
+  
+  if (wasNeverStarted) {
+    // No reason to rewind if not actually started yet
+  } else {
+    [self rewind];
+  }
   
 	// Can only transition from PAUSED to ANIMATING via unpause
   
@@ -1058,7 +1069,7 @@
 
 - (void) _animatorDecodeFrameCallback: (NSTimer *)timer {
   if (self.state != ANIMATING) {
-    NSAssert(FALSE, @"state is not ANIMATING");
+    NSAssert(FALSE, @"state is not ANIMATING in _animatorDecodeFrameCallback : %@", [self description]);
   }
   
 	NSTimeInterval currentTime;
@@ -1308,7 +1319,7 @@
 
 - (void) _animatorDisplayFrameCallback: (NSTimer *)timer {
   if (self->m_state != ANIMATING) {
-    NSAssert(FALSE, @"state is not ANIMATING");
+    NSAssert(FALSE, @"state is not ANIMATING in _animatorDisplayFrameCallback : %@", [self description]);
   }
   
 #ifdef DEBUG_OUTPUT
