@@ -86,6 +86,13 @@
   resLoader.outPath = tmpPath;
   //resLoader.alwaysGenerateAdler = TRUE;
   
+#if defined(HAS_LIB_COMPRESSION_API)
+  // When enabled and iOS >= 9.0 then use compressed frames which can save 10x size
+  if ((1)) {
+    resLoader.compressed = TRUE;
+  }
+#endif // HAS_LIB_COMPRESSION_API
+  
   AVAnimatorMedia *media = [AVAnimatorMedia aVAnimatorMedia];
   media.resourceLoader = resLoader;
   

@@ -19,6 +19,11 @@
 		3C823A5B1AA195CA00399E31 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C823A591AA195CA00399E31 /* Icon.png */; };
 		3C823A5C1AA195CA00399E31 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C823A5A1AA195CA00399E31 /* Icon@2x.png */; };
 		3C823A5E1AA196A900399E31 /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C823A5D1AA196A900399E31 /* Icon-76.png */; };
+		3CEBDAB91E38543C0009E4DD /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CEBDAB81E38543B0009E4DD /* CoreImage.framework */; };
+		3CEBDABF1E3854CE0009E4DD /* AVAnimatorH264AlphaPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CEBDABA1E3854CE0009E4DD /* AVAnimatorH264AlphaPlayer.m */; };
+		3CEBDAC01E3854CE0009E4DD /* AVAssetMixAlphaResourceLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CEBDABC1E3854CE0009E4DD /* AVAssetMixAlphaResourceLoader.m */; };
+		3CEBDAC11E3854CE0009E4DD /* AVStreamEncodeDecode.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CEBDABE1E3854CE0009E4DD /* AVStreamEncodeDecode.m */; };
+		3CEBDAC31E3854F40009E4DD /* libcompression.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CEBDAC21E3854F40009E4DD /* libcompression.tbd */; };
 		CD04C7D316B5BD0F002D8E57 /* kitty-run.apng in Resources */ = {isa = PBXBuildFile; fileRef = CD04C7D216B5BD0F002D8E57 /* kitty-run.apng */; };
 		CD31A63E16B3E0230031CF69 /* Beach_960_640.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */; };
 		CD31A63F16B3E0230031CF69 /* Beach_1024_768.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CD31A63D16B3E0230031CF69 /* Beach_1024_768.jpg */; };
@@ -111,6 +116,13 @@
 		3C823A591AA195CA00399E31 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		3C823A5A1AA195CA00399E31 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		3C823A5D1AA196A900399E31 /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
+		3CEBDAB81E38543B0009E4DD /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		3CEBDABA1E3854CE0009E4DD /* AVAnimatorH264AlphaPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVAnimatorH264AlphaPlayer.m; sourceTree = "<group>"; };
+		3CEBDABB1E3854CE0009E4DD /* AVAssetMixAlphaResourceLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVAssetMixAlphaResourceLoader.h; sourceTree = "<group>"; };
+		3CEBDABC1E3854CE0009E4DD /* AVAssetMixAlphaResourceLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVAssetMixAlphaResourceLoader.m; sourceTree = "<group>"; };
+		3CEBDABD1E3854CE0009E4DD /* AVStreamEncodeDecode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVStreamEncodeDecode.h; sourceTree = "<group>"; };
+		3CEBDABE1E3854CE0009E4DD /* AVStreamEncodeDecode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVStreamEncodeDecode.m; sourceTree = "<group>"; };
+		3CEBDAC21E3854F40009E4DD /* libcompression.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcompression.tbd; path = usr/lib/libcompression.tbd; sourceTree = SDKROOT; };
 		CD04C7D216B5BD0F002D8E57 /* kitty-run.apng */ = {isa = PBXFileReference; lastKnownFileType = file; path = "kitty-run.apng"; sourceTree = "<group>"; };
 		CD31A63C16B3E0230031CF69 /* Beach_960_640.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Beach_960_640.jpg; sourceTree = "<group>"; };
 		CD31A63D16B3E0230031CF69 /* Beach_1024_768.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Beach_1024_768.jpg; sourceTree = "<group>"; };
@@ -246,6 +258,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CEBDAC31E3854F40009E4DD /* libcompression.tbd in Frameworks */,
+				3CEBDAB91E38543C0009E4DD /* CoreImage.framework in Frameworks */,
 				CD4C844316B4FA390045DC61 /* CoreVideo.framework in Frameworks */,
 				3C823A581AA1920D00399E31 /* ImageIO.framework in Frameworks */,
 				3C823A561AA1920100399E31 /* CoreText.framework in Frameworks */,
@@ -270,6 +284,11 @@
 		CD4C83A716B4F5A80045DC61 /* AVAnimator */ = {
 			isa = PBXGroup;
 			children = (
+				3CEBDABA1E3854CE0009E4DD /* AVAnimatorH264AlphaPlayer.m */,
+				3CEBDABB1E3854CE0009E4DD /* AVAssetMixAlphaResourceLoader.h */,
+				3CEBDABC1E3854CE0009E4DD /* AVAssetMixAlphaResourceLoader.m */,
+				3CEBDABD1E3854CE0009E4DD /* AVStreamEncodeDecode.h */,
+				3CEBDABE1E3854CE0009E4DD /* AVStreamEncodeDecode.m */,
 				CD4C83A816B4F5A80045DC61 /* ApngConvertMaxvid.h */,
 				CD4C83A916B4F5A80045DC61 /* ApngConvertMaxvid.m */,
 				CD4C83AA16B4F5A80045DC61 /* AV7zApng2MvidResourceLoader.h */,
@@ -425,6 +444,8 @@
 		CDC510BB1692BC120069C891 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3CEBDAC21E3854F40009E4DD /* libcompression.tbd */,
+				3CEBDAB81E38543B0009E4DD /* CoreImage.framework */,
 				3C823A571AA1920D00399E31 /* ImageIO.framework */,
 				3C823A551AA1920100399E31 /* CoreText.framework */,
 				3C823A531AA191F600399E31 /* OpenGLES.framework */,
@@ -512,6 +533,11 @@
 			attributes = {
 				LastUpgradeCheck = 0450;
 				ORGANIZATIONNAME = example.com;
+				TargetAttributes = {
+					CDC510B71692BC120069C891 = {
+						DevelopmentTeam = 9F74CLHA49;
+					};
+				};
 			};
 			buildConfigurationList = CDC510B21692BC120069C891 /* Build configuration list for PBXProject "KittyBoom" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -566,6 +592,7 @@
 				CD4C840D16B4F5A80045DC61 /* ApngConvertMaxvid.m in Sources */,
 				CD4C840E16B4F5A80045DC61 /* AV7zApng2MvidResourceLoader.m in Sources */,
 				CD4C840F16B4F5A80045DC61 /* AV7zAppResourceLoader.m in Sources */,
+				3CEBDABF1E3854CE0009E4DD /* AVAnimatorH264AlphaPlayer.m in Sources */,
 				CD4C841016B4F5A80045DC61 /* AVAnimatorLayer.m in Sources */,
 				CD4C841116B4F5A80045DC61 /* AVAnimatorMedia.m in Sources */,
 				CD4C841216B4F5A80045DC61 /* AVAnimatorView.m in Sources */,
@@ -606,6 +633,7 @@
 				CD4C843116B4F5A80045DC61 /* CpuArch.c in Sources */,
 				CD4C843216B4F5A80045DC61 /* Delta.c in Sources */,
 				CD4C843316B4F5A80045DC61 /* Lzma2Dec.c in Sources */,
+				3CEBDAC11E3854CE0009E4DD /* AVStreamEncodeDecode.m in Sources */,
 				CD4C843416B4F5A80045DC61 /* LzmaDec.c in Sources */,
 				CD4C843516B4F5A80045DC61 /* LZMAExtractor.m in Sources */,
 				CD4C843616B4F5A80045DC61 /* Ppmd7.c in Sources */,
@@ -614,6 +642,7 @@
 				CD4C843916B4F5A80045DC61 /* Ppmd8Dec.c in Sources */,
 				CD4C843A16B4F5A80045DC61 /* 7zAlloc.c in Sources */,
 				CD4C843B16B4F5A80045DC61 /* 7zMain.c in Sources */,
+				3CEBDAC01E3854CE0009E4DD /* AVAssetMixAlphaResourceLoader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -700,10 +729,11 @@
 		CDC510E01692BC130069C891 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 9F74CLHA49;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KittyBoom/KittyBoom-Prefix.pch";
 				INFOPLIST_FILE = "KittyBoom/KittyBoom-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -712,10 +742,11 @@
 		CDC510E11692BC130069C891 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 9F74CLHA49;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KittyBoom/KittyBoom-Prefix.pch";
 				INFOPLIST_FILE = "KittyBoom/KittyBoom-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
