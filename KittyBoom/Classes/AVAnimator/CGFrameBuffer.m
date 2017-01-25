@@ -136,11 +136,10 @@ void CGFrameBufferProviderReleaseData (void *info, const void *data, size_t size
     numpages++;
   }
   
-  kern_return_t ret;
-  mach_vm_size_t size = (mach_vm_size_t)(numpages * pagesize);
-  allocNumBytes = (size_t)size;
+  vm_size_t m_size = (vm_size_t)(numpages * pagesize);
+  allocNumBytes = (size_t)m_size;
   
-  ret = vm_allocate((vm_map_t) mach_task_self(), (vm_address_t*) &buffer, size, VM_FLAGS_ANYWHERE);
+  kern_return_t ret = vm_allocate((vm_map_t) mach_task_self(), (vm_address_t*) &buffer, m_size, VM_FLAGS_ANYWHERE);
   
   if (ret != KERN_SUCCESS) {
     buffer = NULL;
@@ -709,6 +708,43 @@ void CGFrameBufferProviderReleaseData (void *info, const void *data, size_t size
   [self doneZeroCopyPixels];
 }
 
+- (void) copyFromCVPixelBuffer:(CVPixelBufferRef)cVPixelBufferRef
+{
+  int width = (int) self.width;
+  int height = (int) self.height;
+  
+  int cvWidth = (int) CVPixelBufferGetWidth(cVPixelBufferRef);
+  int cvHeight = (int) CVPixelBufferGetHeight(cVPixelBufferRef);
+  
+  int numPlanes = (int) CVPixelBufferGetPlaneCount(cVPixelBufferRef);
+  assert(numPlanes <= 1); // exclude YUV buffers
+  
+  // Note that the width and height of the dst of the copy operation
+  // can be smaller that the source. The image data is cropped to
+  // the size of the dst in that case.
+  
+  assert(width <= cvWidth);
+  assert(height <= cvHeight);
+  
+  char *pixels = (char*) self.pixels;
+  
+  CVPixelBufferLockBaseAddress(cVPixelBufferRef, 0);
+  
+  char *baseAddress = (char*) CVPixelBufferGetBaseAddress(cVPixelBufferRef);
+  assert(baseAddress);
+
+  int rowWidthInBytes = width * sizeof(uint32_t);
+  int cvRowWidthInBytes = (int)CVPixelBufferGetBytesPerRow(cVPixelBufferRef);
+  
+  for (int row = 0; row < height; row++) {
+    memcpy(&pixels[row * rowWidthInBytes], &baseAddress[row * cvRowWidthInBytes], rowWidthInBytes);
+  }
+  
+  CVPixelBufferUnlockBaseAddress(cVPixelBufferRef, 0);
+  
+  return;
+}
+
 - (void)dealloc {
 	NSAssert(self.isLockedByDataProvider == FALSE, @"dealloc: buffer still locked by data provider");
   [self doneZeroCopyPixels];
@@ -755,7 +791,7 @@ void CGFrameBufferProviderReleaseData (void *info, const void *data, size_t size
   // properly page aligned and that the number of bytes to
   // copy is an exact multiple of the page size.
   
-  size_t ptr = zeroCopyPtr;
+  size_t ptr = (size_t) zeroCopyPtr;
   size_t s = getpagesize();
   
   if ((ptr % s) != 0) {

@@ -39,6 +39,7 @@
 
 // Trivial vertex and fragment shaders
 
+static
 const GLchar *vertShaderCstr =
 "attribute vec4 position; attribute mediump vec4 textureCoordinate;"
 "varying mediump vec2 coordinate;"
@@ -48,6 +49,7 @@ const GLchar *vertShaderCstr =
 "	coordinate = textureCoordinate.xy;"
 "}";
 
+static
 const GLchar *fragShaderCstr =
 "varying highp vec2 coordinate;"
 "uniform sampler2D videoframe;"
@@ -132,7 +134,13 @@ enum {
 
 + (AVAnimatorOpenGLView*) aVAnimatorOpenGLView
 {
-  return [AVAnimatorOpenGLView aVAnimatorOpenGLViewWithFrame:[UIScreen mainScreen].applicationFrame];
+  UIScreen *screen = [UIScreen mainScreen];
+#if defined(TARGET_OS_TV)
+  CGRect rect = screen.bounds;
+#else
+  CGRect rect = screen.applicationFrame;
+#endif // TARGET_OS_TV
+  return [AVAnimatorOpenGLView aVAnimatorOpenGLViewWithFrame:rect];
 }
 
 + (AVAnimatorOpenGLView*) aVAnimatorOpenGLViewWithFrame:(CGRect)viewFrame
@@ -145,7 +153,9 @@ enum {
 #endif // objc_arc
 }
 
-- (id) initWithFrame:(CGRect)frame
+// Get EAGLContext with static method since the self reference is not setup yet
+
++ (EAGLContext*) genericInitEAGLContext1
 {
   EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
   
@@ -160,30 +170,61 @@ enum {
     return nil;
   }
   
+  return context;
+}
+
+// This init method is invoked after the self reference is valid.
+
+- (void) genericInitEAGLContext2:(EAGLContext*)context
+{
+  // Defaults for opacity related properties. We expect the view to be
+  // fully opaque since the image renders all the pixels in the view.
+  // Unless in 32bpp mode, in that case pixels can be partially transparent.
+  
+  // Set GLKView.context
+  self.context = context;
+  
+  self.opaque = TRUE;
+  self.clearsContextBeforeDrawing = FALSE;
+  self.backgroundColor = nil;
+  
+  // Use 2x scale factor on Retina displays.
+  self.contentScaleFactor = [[UIScreen mainScreen] scale];
+  
+  self.enableSetNeedsDisplay = YES;
+  
+  self->passThroughProgram = 0;
+  self->textureCacheRef = NULL;
+  
+  self->didSetupOpenGLMembers = FALSE;
+  
+  return;
+}
+
+- (id) initWithFrame:(CGRect)frame
+{
+  EAGLContext *context = [self.class genericInitEAGLContext1];
+  
+  if (context == nil) {
+    return nil;
+  }
+  
   if ((self = [super initWithFrame:frame])) {
-    // Defaults for opacity related properties. We expect the view to be
-    // fully opaque since the image renders all the pixels in the view.
-    // Unless in 32bpp mode, in that case pixels can be partially transparent.
-    
-    // Set GLKView.context
-    self.context = context;
-    
-    self.opaque = TRUE;
-    self.clearsContextBeforeDrawing = FALSE;
-    self.backgroundColor = nil;
-    
-		// Use 2x scale factor on Retina displays.
-		self.contentScaleFactor = [[UIScreen mainScreen] scale];
-    
-    self.enableSetNeedsDisplay = YES;
-    
-    self->passThroughProgram = 0;
-    self->textureCacheRef = NULL;
-    
-    self->didSetupOpenGLMembers = FALSE;
+    [self genericInitEAGLContext2:context];
   }
   
   return self;
+}
+
+- (void) awakeFromNib
+{
+  [super awakeFromNib];
+  
+  EAGLContext *context = [self.class genericInitEAGLContext1];
+  
+  if (context) {
+    [self genericInitEAGLContext2:context];
+  }
 }
 
 - (void) _setOpaqueFromDecoder
@@ -232,6 +273,10 @@ enum {
 
 - (void) attachMedia:(AVAnimatorMedia*)inMedia
 {
+#if defined(DEBUG)
+  assert([NSThread currentThread] == [NSThread mainThread]);
+#endif // DEBUG
+  
   AVAnimatorMedia *currentMedia = self.mediaObj;
   
   if (currentMedia == inMedia) {
